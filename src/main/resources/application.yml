@@ -1,2 +1,49 @@
 server:
   port: 8084
+
+spring:
+  application:
+    name: booking-service
+
+  data:
+    mongodb:
+      uri: mongodb+srv://restaurant-user:K9ZT79bvbmqeRRXx@gastroconnect.wshj5.mongodb.net/?retryWrites=true&w=majority&appName=gastroconnect
+      database: restaurant
+      auto-index-creation: false
+      mapping:
+        field-type:
+          - type: app.domain.model.RestaurantDto
+            alias: restaurant
+
+
+
+
+  r2dbc:
+    url: r2dbc:postgresql://db-bookings-gc-phpl-12d9.k.aivencloud.com:26287/db-bookings?sslmode=require
+    username: develop
+    password: AVNS_3HILIRV3eVmT6ugXYJY
+  datasource:
+    driver-class-name: org.postgresql.Driver
+
+
+
+
+
+  kafka:
+    bootstrap-servers: pkc-4v5zz.sa-east-1.aws.confluent.cloud:9092
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username='UGZHUQEFLM4UETR2' password='vml/FasZLU2huIhqLQS/Cs0XZO7b2h98Mz6VYKOYPBIuilcc+0FLDDjQIkimuck6';
+        mechanism: PLAIN
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: my-consumer-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
