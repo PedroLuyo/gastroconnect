@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ "ms-restaurants" ]
 
-env:
-  IMAGE_NAME: ms-restaurants
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -44,7 +41,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/ms-restaurants:latest
-            ${{ secrets.DOCKER_UUSERNAME }}/ms-restaurants:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/ms-restaurants:${{ github.sha }}
 
       - name: Success Notification
         if: success()
@@ -57,11 +54,4 @@ jobs:
         if: failure()
         run: |
           echo "❌ Workflow failed!"
-          if: ${{ steps.checkout.outcome == 'failure' }}
-            echo "Error en el checkout del repositorio"
-          if: ${{ steps.setup-java.outcome == 'failure' }}
-            echo "Error en la configuración de Java"
-          if: ${{ steps.docker-login.outcome == 'failure' }}
-            echo "Error en el login a Docker Hub"
-          if: ${{ steps.docker-build-push.outcome == 'failure' }}
-            echo "Error en el build o push de la imagen Docker"
+          echo "Step that failed: ${{ steps.build-and-push.outcome }}"
