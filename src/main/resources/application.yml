@@ -1,2 +1,16 @@
 server:
   port: 8081
+
+
+  application:
+    name: dishes-service
+
+  data:
+    mongodb:
+      uri: mongodb+srv://restaurant-user:K9ZT79bvbmqeRRXx@gastroconnect.wshj5.mongodb.net/?retryWrites=true&w=majority&appName=gastroconnect
+      database: product
+      auto-index-creation: false
+      mapping:
+        field-type:
+          - type: app.domain.model.DishDto
+            alias: restaurant
