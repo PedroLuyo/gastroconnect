@@ -1,7 +1,13 @@
 server:
   port: 8083
 
+
+
 spring:
+
+  application:
+    name: bookings-service
+
   r2dbc:
     url: r2dbc:postgresql://db-bookings-gc-phpl-12d9.k.aivencloud.com:26287/db-bookings?sslmode=require
     username: develop
