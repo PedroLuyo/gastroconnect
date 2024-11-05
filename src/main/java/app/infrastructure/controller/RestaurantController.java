@@ -52,5 +52,4 @@ public class RestaurantController {
     public Mono<RestaurantDto> restoreRestaurant(@PathVariable int sequence) {
         return restaurantUseCase.restoreRestaurant(sequence);
     }
-
 }
