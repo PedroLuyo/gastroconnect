@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface RestaurantEventPublisher {
     Mono<Void> publishRestaurantUpdate(RestaurantDto restaurantDto);
+    Mono<Void> publishRestaurantCreate(RestaurantDto restaurantDto);
 }

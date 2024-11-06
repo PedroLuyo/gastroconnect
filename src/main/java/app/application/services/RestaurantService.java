@@ -21,7 +21,7 @@ public class RestaurantService implements RestaurantUseCase {
     @Override
     public Flux<RestaurantDto> createRestaurants(List<RestaurantDto> restaurantDtos) {
         return restaurantRepository.findFirstByOrderByIdentifierDesc()
-                .map(lastRestaurant -> lastRestaurant.getIdentifier())
+                .map(RestaurantDto::getIdentifier)
                 .defaultIfEmpty(0)
                 .flatMapMany(lastIdentifier -> {
                     int[] identifierCounter = {lastIdentifier};
@@ -35,7 +35,11 @@ public class RestaurantService implements RestaurantUseCase {
                                     }))
                             )
                             .collectList()
-                            .flatMapMany(restaurantRepository::saveAll);
+                            .flatMapMany(restaurantRepository::saveAll)
+                            .flatMap(savedRestaurant ->
+                                    eventPublisher.publishRestaurantCreate(savedRestaurant)
+                                            .thenReturn(savedRestaurant)
+                            );
                 });
     }
 
