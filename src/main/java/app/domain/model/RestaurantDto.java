@@ -26,9 +26,9 @@ public class RestaurantDto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String uid;
 
-    @Field("sequence")
-    @JsonProperty("secuencia")
-    private int sequence;
+    @Field("identifier")
+    @JsonProperty("identificador")
+    private int identifier;
 
     @Field("name")
     @JsonProperty("nombre")

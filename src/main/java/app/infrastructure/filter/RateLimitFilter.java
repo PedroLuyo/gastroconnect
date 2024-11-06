@@ -10,10 +10,10 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.time.Duration;
+
 @Component
 public class RateLimitFilter implements WebFilter {
 
-    // Control de solicitudes
     private final AtomicInteger requestCount = new AtomicInteger(0);
     private static final int MAX_REQUESTS_PER_MINUTE = 50;
     private static final Duration RESET_PERIOD = Duration.ofMinutes(1);
@@ -22,9 +22,6 @@ public class RateLimitFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         LocalTime currentTime = LocalTime.now(ZoneId.systemDefault());
 
-
-
-        // Control de frecuencia de solicitudes
         if (requestCount.incrementAndGet() > MAX_REQUESTS_PER_MINUTE) {
             exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
             return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
@@ -33,10 +30,8 @@ public class RateLimitFilter implements WebFilter {
                                     .getBytes())));
         }
 
-        // Resetear el contador después del período establecido
         Mono.delay(RESET_PERIOD).subscribe(__ -> requestCount.set(0));
 
-        // Agregar headers informativos
         exchange.getResponse().getHeaders().add("X-Restaurant-Hours", "07:00-23:00");
         exchange.getResponse().getHeaders().add("X-Rate-Limit-Remaining",
                 String.valueOf(MAX_REQUESTS_PER_MINUTE - requestCount.get()));
@@ -48,6 +43,4 @@ public class RateLimitFilter implements WebFilter {
                             "Hubo un error procesando tu solicitud. Por favor, intenta nuevamente.");
                 });
     }
-
-
 }

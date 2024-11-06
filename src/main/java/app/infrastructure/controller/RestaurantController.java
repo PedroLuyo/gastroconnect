@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
@@ -17,8 +19,8 @@ public class RestaurantController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<RestaurantDto> createRestaurant(@RequestBody RestaurantDto restaurantDto) {
-        return restaurantUseCase.createRestaurant(restaurantDto);
+    public Flux<RestaurantDto> createRestaurants(@RequestBody List<RestaurantDto> restaurantDtos) {
+        return restaurantUseCase.createRestaurants(restaurantDtos);
     }
 
     @GetMapping("/obtain")
@@ -26,9 +28,9 @@ public class RestaurantController {
         return restaurantUseCase.getAllRestaurants();
     }
 
-    @GetMapping("/obtain/{sequence}")
-    public Mono<RestaurantDto> getRestaurantBySequence(@PathVariable int sequence) {
-        return restaurantUseCase.getRestaurantBySequence(sequence);
+    @GetMapping("/obtain/{identifier}")
+    public Mono<RestaurantDto> getRestaurantByIdentifier(@PathVariable int identifier) {
+        return restaurantUseCase.getRestaurantByIdentifier(identifier);
     }
 
     @PutMapping("/edit/{sequence}")
@@ -48,8 +50,8 @@ public class RestaurantController {
         return restaurantUseCase.logicalDeleteRestaurant(sequence);
     }
 
-    @PutMapping("/restore/{sequence}")
-    public Mono<RestaurantDto> restoreRestaurant(@PathVariable int sequence) {
-        return restaurantUseCase.restoreRestaurant(sequence);
+    @PutMapping("/restore/{identifier}")
+    public Mono<RestaurantDto> restoreRestaurant(@PathVariable int identifier) {
+        return restaurantUseCase.restoreRestaurant(identifier);
     }
 }
