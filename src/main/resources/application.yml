@@ -1,16 +1,30 @@
 server:
   port: 8081
 
-
+spring:
   application:
     name: dishes-service
 
   data:
     mongodb:
       uri: mongodb+srv://restaurant-user:K9ZT79bvbmqeRRXx@gastroconnect.wshj5.mongodb.net/?retryWrites=true&w=majority&appName=gastroconnect
-      database: product
+      database: restaurant
       auto-index-creation: false
-      mapping:
-        field-type:
-          - type: app.domain.model.DishDto
-            alias: restaurant
+
+  kafka:
+    bootstrap-servers: pkc-4v5zz.sa-east-1.aws.confluent.cloud:9092
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        jaas:
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username='JOF7TEJBGQ2VCW2Z' password='m8SMtW/6y74KnEQTa9BeZH6GD9ptnPfWS0cvCAfE3efIr8p0PXKCgaVskb3Cqfmv';
+        mechanism: PLAIN
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: my-consumer-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
