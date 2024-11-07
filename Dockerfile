@@ -24,4 +24,4 @@ COPY --from=build /app/target/ms-notifications.jar .
 EXPOSE 8084
 
 # Comando para ejecutar tu aplicación cuando se inicie el contenedor
-CMD ["java", "-jar", "ms-notifications"]
+CMD ["java", "-jar", "ms-notifications.jar"]
