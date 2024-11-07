@@ -10,7 +10,6 @@ COPY src ./src
 
 # Compila el proyecto y genera el archivo JAR
 RUN mvn clean package -DskipTests
-
 # Utiliza la imagen base de OpenJDK 17 slim para ejecutar la aplicación
 FROM openjdk:17-jdk-alpine3.14
 
@@ -24,4 +23,4 @@ COPY --from=build /app/target/ms-dishes.jar .
 EXPOSE 8081
 
 # Comando para ejecutar tu aplicación cuando se inicie el contenedor
-CMD ["java", "-jar", "ms-dishes"]
+CMD ["java", "-jar", "ms-dishes.jar"]
