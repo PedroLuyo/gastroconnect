@@ -24,4 +24,4 @@ COPY --from=build /app/target/ms-restaurants.jar .
 EXPOSE 8082
 
 # Comando para ejecutar tu aplicación cuando se inicie el contenedor
-CMD ["java", "-jar", "ms-restaurants"]
+CMD ["java", "-jar", "ms-restaurants.jar"]
