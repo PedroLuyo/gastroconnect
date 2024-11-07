@@ -24,4 +24,4 @@ COPY --from=build /app/target/ms-bookings.jar .
 EXPOSE 8083
 
 # Comando para ejecutar tu aplicación cuando se inicie el contenedor
-CMD ["java", "-jar", "ms-bookings"]
+CMD ["java", "-jar", "ms-bookings.jar"]
