@@ -3,7 +3,10 @@ package app.application.services;
 import app.application.mapper.BookingMapper;
 import app.domain.model.dto.BookingDtos.BookingDto;
 import app.domain.model.entity.BookingEntities.*;
+import app.domain.model.kafka.BookingConfirmedMessage;
+import app.domain.model.kafka.BookingCreatedMessage;
 import app.domain.ports.input.BookingUseCase;
+import app.domain.ports.output.BookingEventPublisher;
 import app.domain.ports.output.BookingRepository;
 import app.domain.ports.output.BookingDetailRepository;
 import app.domain.ports.output.BookingMenuDetailRepository;
@@ -20,32 +23,31 @@ public class BookingService implements BookingUseCase {
     private final BookingDetailRepository detailRepository;
     private final BookingMenuDetailRepository menuDetailRepository;
     private final BookingMapper mapper;
+    private final BookingEventPublisher eventPublisher;  // Agregar esto
+
 
     @Override
     public Mono<BookingDto> createBooking(BookingDto bookingDto) {
         return Mono.just(mapper.toEntity(bookingDto))
+                .map(booking -> {
+                    booking.setStage("P"); // Pendiente por defecto
+                    return booking;
+                })
                 .flatMap(bookingRepository::save)
-                .flatMap(savedBooking -> Flux.fromIterable(bookingDto.getDetails())
-                        .flatMap(detailDto -> {
-                            BookingDetail detail = mapper.toDetailEntity(detailDto, savedBooking.getId());
-                            return detailRepository.save(detail)
-                                    .flatMap(savedDetail -> {
-                                        if (Boolean.TRUE.equals(detail.getIsMenu())) {
-                                            return Flux.fromIterable(detailDto.getMenuDetails())
-                                                    .flatMap(menuDetailDto -> {
-                                                        BookingMenuDetail menuDetail = mapper.toMenuDetailEntity(menuDetailDto, savedDetail.getId());
-                                                        return menuDetailRepository.save(menuDetail);
-                                                    })
-                                                    .collectList()
-                                                    .thenReturn(savedDetail);
-                                        }
-                                        return Mono.just(savedDetail);
-                                    });
-                        })
-                        .collectList()
-                        .flatMap(savedDetails -> menuDetailRepository.findAll()
-                                .collectList()
-                                .map(menuDetails -> mapper.toDto(savedBooking, savedDetails, menuDetails))));
+                .flatMap(savedBooking -> {
+                    // Crear y publicar mensaje
+                    BookingCreatedMessage message = BookingCreatedMessage.builder()
+                            .bookingId(savedBooking.getId())
+                            .clientName(savedBooking.getClientName())
+                            .clientEmail(savedBooking.getClientEmail())
+                            .restaurantName(savedBooking.getRestaurantName())
+                            .reservationDate(savedBooking.getReservationDate())
+                            .reservationTime(savedBooking.getReservationTime())
+                            .build();
+
+                    return eventPublisher.publishBookingCreated(message)
+                            .then(Mono.just(mapper.toDto(savedBooking, null, null)));
+                });
     }
 
     @Override
@@ -157,16 +159,23 @@ public class BookingService implements BookingUseCase {
                     }
                     booking.setStage("C");
                     return bookingRepository.save(booking)
-                            .flatMap(savedBooking ->
-                                    detailRepository.findByBookingId(savedBooking.getId())
-                                            .collectList()
-                                            .flatMap(details ->
-                                                    menuDetailRepository.findAll()
-                                                            .collectList()
-                                                            .map(menuDetails ->
-                                                                    mapper.toDto(savedBooking, details, menuDetails))));
+                            .flatMap(savedBooking -> {
+                                // Crear y publicar mensaje de confirmación
+                                BookingConfirmedMessage message = BookingConfirmedMessage.builder()
+                                        .bookingId(savedBooking.getId())
+                                        .clientName(savedBooking.getClientName())
+                                        .clientEmail(savedBooking.getClientEmail())
+                                        .restaurantName(savedBooking.getRestaurantName())
+                                        .reservationDate(savedBooking.getReservationDate())
+                                        .reservationTime(savedBooking.getReservationTime())
+                                        .build();
+
+                                return eventPublisher.publishBookingConfirmed(message)
+                                        .then(getCompleteBooking(savedBooking));
+                            });
                 });
     }
+
 
     @Override
     public Mono<BookingDto> declineBooking(Integer id) {
@@ -212,5 +221,16 @@ public class BookingService implements BookingUseCase {
                                                 .collectList()
                                                 .map(menuDetails ->
                                                         mapper.toDto(booking, details, menuDetails))));
+    }
+
+
+    private Mono<BookingDto> getCompleteBooking(Booking booking) {
+        return detailRepository.findByBookingId(booking.getId())
+                .collectList()
+                .flatMap(details ->
+                        menuDetailRepository.findAll()
+                                .collectList()
+                                .map(menuDetails ->
+                                        mapper.toDto(booking, details, menuDetails)));
     }
 }
