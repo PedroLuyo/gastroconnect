@@ -11,7 +11,7 @@ Para clonar el repositorio y asegurar que tu copia local esté sincronizada con 
 ¿Quieres arrancar rápido con el proyecto? ¡Chévere! Este comando hace el trabajo pesado por ti:
 
 ```bash
-git clone -b frontend https://github.com/PedroLuyo/A212_PRS.git && cd A212_PRS && npm install && npm install -g @angular/cli && ng serve --open
+git clone -b web-gastroconnect https://github.com/PedroLuyo/gastroconnect.git && cd gastroconnect && npm install && npm install -g @angular/cli && ng serve --open
 
 ```
 > **Fix:** Comando corregido para ejecutar en `Codespace`:
