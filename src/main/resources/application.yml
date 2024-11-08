@@ -3,28 +3,7 @@ server:
 
 spring:
   application:
-    name: booking-service
-
-  data:
-    mongodb:
-      uri: mongodb+srv://restaurant-user:K9ZT79bvbmqeRRXx@gastroconnect.wshj5.mongodb.net/?retryWrites=true&w=majority&appName=gastroconnect
-      database: restaurant
-      auto-index-creation: false
-
-
-
-
-
-  r2dbc:
-    url: r2dbc:postgresql://db-bookings-gc-phpl-12d9.k.aivencloud.com:26287/db-bookings?sslmode=require
-    username: develop
-    password: AVNS_3HILIRV3eVmT6ugXYJY
-  datasource:
-    driver-class-name: org.postgresql.Driver
-
-
-
-
+    name: notification-service
 
   kafka:
     bootstrap-servers: pkc-4v5zz.sa-east-1.aws.confluent.cloud:9092
@@ -44,3 +23,14 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+  mail:
+    host: smtp.mailtrap.io
+    port: 2525
+    username: 'phpl.system@gmail.com'
+    password: 'meqw hron cmnn kbgu'
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
