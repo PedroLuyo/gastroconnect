@@ -12,7 +12,7 @@ spring:
         protocol: SASL_SSL
       sasl:
         jaas:
-          config: org.apache.kafka.common.security.plain.PlainLoginModule required username='UGZHUQEFLM4UETR2' password='vml/FasZLU2huIhqLQS/Cs0XZO7b2h98Mz6VYKOYPBIuilcc+0FLDDjQIkimuck6';
+          config: org.apache.kafka.common.security.plain.PlainLoginModule required username='JOF7TEJBGQ2VCW2Z' password='m8SMtW/6y74KnEQTa9BeZH6GD9ptnPfWS0cvCAfE3efIr8p0PXKCgaVskb3Cqfmv';
         mechanism: PLAIN
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -24,8 +24,8 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   mail:
-    host: smtp.mailtrap.io
-    port: 2525
+    host: smtp.gmail.com
+    port: 587
     username: 'phpl.system@gmail.com'
     password: 'meqw hron cmnn kbgu'
     properties:
@@ -34,3 +34,6 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
+        transport:
+          protocol: smtp
