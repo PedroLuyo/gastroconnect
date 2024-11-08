@@ -1,0 +1,150 @@
+<div class="login-page">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <!-- Login Form -->
+        <div class="auth-card">
+          <div class="card-header text-center">
+            <div class="image-container">
+              <img src="https://th.bing.com/th/id/R.8d1ea3e893b2c33f6fe77d0d13e19483?rik=HIsWqIx38hEmbg&pid=ImgRaw&r=0"
+                class="mb-1 mi-gif" alt="Logo" class="mb-1"/>
+            </div>  
+
+            <h3>Iniciar sesión</h3>
+            <p class="subtitle">Por favor completar los datos</p>
+          </div>
+
+          <div class="card-body">
+            <form class="auth-form" [formGroup]="formLogin" (ngSubmit)="onSubmit()">
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                  <input type="email" 
+                         class="form-control" 
+                         placeholder="Correo electrónico"
+                         formControlName="email"
+                         #resetEmailField>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  <input type="password" 
+                         class="form-control" 
+                         placeholder="Contraseña"
+                         formControlName="password">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+              </button>
+
+              <div class="separator">
+                <span>o</span>
+              </div>
+
+              <button type="button" 
+                      class="btn btn-outline-secondary btn-block google-btn" 
+                      (click)="onClick()">
+                      <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google" class="google-icon">
+                Continuar con Google
+              </button>
+
+              <div class="mt-4 text-center">
+                  <a href="javascript:void(0)" 
+                     class="d-block mb-2" 
+                     (click)="navigateToLoginBlock()">
+                     ¿No tienes cuenta? Regístrate aquí
+                  </a>
+                
+                  <a href="javascript:void(0)" 
+                     (click)="sendPasswordResetEmail(formLogin.get('email')?.value || '')"
+                     class="text-muted small">
+                     ¿Olvidaste tu contraseña?
+                  </a>
+                
+              </div>
+              <br>
+              <br>
+                
+            </form>
+          </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="auth-card" id="login-block">
+          <div class="card-header text-center">
+            <h3>Crear cuenta nueva</h3>
+            <p class="subtitle">Complete sus datos para registrarse</p>
+          </div>
+
+          <div class="card-body">
+            <form class="auth-form" (ngSubmit)="registerUser(registerForm)" #registerForm="ngForm">
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                  <input type="email" 
+                         class="form-control" 
+                         name="email" 
+                         placeholder="Correo electrónico"
+                         id="email"
+                         ngModel>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-user"></i>
+                  </span>
+                  <input type="text" 
+                         class="form-control" 
+                         name="name"
+                         placeholder="Coloca tu nombre" 
+                         id="first_name"
+                         ngModel>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  <input type="password" 
+                         class="form-control" 
+                         name="password"
+                         placeholder="Contraseña" 
+                         id="password"
+                         ngModel>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">
+                Registrarse ahora
+              </button>
+
+              <div class="mt-4 text-center">
+                <a href="javascript:void(0)" 
+                   class="d-block mb-2" 
+                   (click)="scrollToTop()">
+                  ¿Ya tienes cuenta? Ingresa aquí
+                </a>
+              </div>
+            </form>
+            <br>
+            <br>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,365 @@
+<!-- ======= Carruzel Section ======= -->
+<section id="hero">
+  <div class="hero-container">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+      <ol class="carousel-indicators" id="hero-carousel-indicators"></ol>
+      <div class="carousel-inner" role="listbox">
+        <!-- Slide 1 -->
+        <div class="carousel-item active" style="background-image: url(assets/slide/slide-1.jpg);">
+          <div class="carousel-container">
+            <div class="carousel-content">
+              <h2 class="animate__animated animate__fadeInDown"><span>Restaurantes</span> Deliciosos</h2>
+              <p class="animate__animated animate__fadeInUp">Bienvenido a nuestro sitio de platos</p>
+              <div class="input-group search-bar">
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar plato" (input)="searchPlatos()"
+                  class="form-control">
+                <div class="input-group-append">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                </div>
+              </div>
+              <!-- Container for displaying searched dishes -->
+              <div id="search-results" *ngIf="showResultBox" class="mt-2 scrollable-results">
+                <ul class="list-group">
+                  <li *ngFor="let plato of limitedSearchResults; let i = index"
+                    class="list-group-item d-flex align-items-center">
+                    <img [src]="plato.image" alt="{{ plato.nombre }}" class="img-thumbnail search-result-img me-3">
+                    <div>
+                      <h5 class="mb-1">{{ plato.nombre }}</h5>
+                      <p class="mb-1">S/ {{ plato.precio.toFixed(2) }}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Slide 2 -->
+        <div class="carousel-item" style="background-image: url(assets/slide/slide-2.jpg);">
+          <div class="carousel-container">
+            <div class="carousel-content">
+              <h2 class="animate__animated animate__fadeInDown"><span>Busca lo que </span> quieras</h2>
+              <p class="animate__animated animate__fadeInUp">Bienvenido a nuestro sitio de platos</p>
+              <div class="input-group search-bar">
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar plato" (input)="searchPlatos()"
+                  class="form-control">
+                <div class="input-group-append">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                </div>
+              </div>
+              <!-- Container for displaying searched dishes -->
+              <div id="search-results" *ngIf="showResultBox" class="mt-2 scrollable-results">
+                <ul class="list-group">
+                  <li *ngFor="let plato of searchResults" class="list-group-item d-flex align-items-center">
+                    <img [src]="plato.image" alt="{{ plato.nombre }}" class="img-thumbnail search-result-img me-3">
+                    <div>
+                      <h5 class="mb-1">{{ plato.nombre }}</h5>
+                      <p class="mb-1">S/ {{ plato.precio.toFixed(2) }}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Slide 3 -->
+        <div class="carousel-item" style="background-image: url(assets/slide/slide-3.jpg);">
+          <div class="carousel-container">
+            <div class="carousel-content">
+              <h2 class="animate__animated animate__fadeInDown"><span>Todo tipo de </span> Platos</h2>
+              <p class="animate__animated animate__fadeInUp">Bienvenido a nuestro sitio de platos</p>
+              <div class="input-group search-bar ">
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar plato" (input)="searchPlatos()"
+                  class="form-control ">
+                <div class="input-group-append">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                </div>
+              </div>
+
+              <div id="search-results" *ngIf="showResultBox" class="mt-2 scrollable-results">
+                <ul class="list-group">
+                  <li *ngFor="let plato of searchResults" class="list-group-item d-flex align-items-center">
+                    <img [src]="plato.image" alt="{{ plato.nombre }}" class="img-thumbnail search-result-img me-3">
+                    <div>
+                      <h5 class="mb-1">{{ plato.nombre }}</h5>
+                      <p class="mb-1">S/ {{ plato.precio.toFixed(2) }}</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Controles del carrusel -->
+      <a class="carousel-control-prev" href="#heroCarousel" role="button" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+      </a>
+      <a class="carousel-control-next" href="#heroCarousel" role="button" data-bs-slide="next">
+        <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+      </a>
+    </div>
+  </div>
+</section>
+<!-- END Carruzel Section -->
+<!-- ======= Sobre Nosotros ======= -->
+<section id="why-us" class="why-us">
+  <div class="container">
+    <div class="section-title">
+      <h2>¿Qué hace la <span>Aplicación?</span></h2>
+      <p>Nuestra aplicación ofrece diversas funcionalidades que facilitan la experiencia de nuestros usuarios:</p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-4">
+        <div class="box">
+          <span>01</span>
+          <h4>Ordenar platos</h4>
+          <p>Explora nuestro variado menú y ordena tus platos favoritos con facilidad, asegurando una experiencia
+            gastronómica única.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="box">
+          <span>02</span>
+          <h4>Buscar Platos</h4>
+          <p>Encuentra rápidamente los platos que deseas mediante nuestro sistema de búsqueda avanzado, diseñado para tu
+            comodidad.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="box">
+          <span>03</span>
+          <h4>Hacer reservas personalizadas</h4>
+          <p>Personaliza tu experiencia reservando mesas de acuerdo a tus preferencias, asegurando un servicio adaptado
+            a tus necesidades.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Sobre Nosotros -->
+<!-- Mensaje de "No se ha encontrado resultados" -->
+<div class="row" *ngIf="showResultBox && searchResults.length === 0">
+  <div class="col-md-6 offset-md-9">
+    <div class="result-box">
+      <div class="no-results">
+        <p>No se ha encontrado resultados.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Botón de generar reporte PDF centrado -->
+<!-- <div class="d-flex justify-content-center my-4">
+  <button class="btn btn-generar-reporte" (click)="generarReportePDF()">
+    <i class="bi bi-file-earmark-pdf-fill"></i> Generar Reporte de Platos
+  </button>
+</div> -->
+<!-- Grid de platos -->
+<section id="grid-de-platos" class="grid-de-platos">
+  <div class="container">
+    <div class="section-title">
+      <h2>Nuestros <span>Platos</span></h2>
+      <p>Explora nuestra variedad de platos disponibles</p>
+    </div>
+    <section id="platos-carta" class="platos-carta">
+      <div class="container">
+        <div class="section-title">
+          <h2>Platos <span>Carta</span></h2>
+          <p>Explora nuestra variedad de platos de carta disponibles</p>
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-4 col-sm-6 mb-4" *ngFor="let platocarta of paginatedPlatosCarta">
+            <div class="card shadow-sm h-100">
+              <img class="card-img-top" [src]="platocarta.image" alt="Imagen de plato">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ platocarta.nombre }}</h5>
+                <p class="card-text">{{ platocarta.descripcion }}</p>
+                <span class="badge card-text"> {{ platocarta.restauranteDetalle.nombre }}</span>
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div style="color: #ffb03b; font-weight: 600;">S/ {{ platocarta.precio.toFixed(2) }}</div>
+                    <div style="color: grey; text-decoration: line-through;">S/ {{
+                      getPrecioTachado(platocarta.precio).toFixed(2) }}</div>
+                    <span *ngIf="platocarta.stock >= 1" class="badge" style="background-color: green;">•
+                      Disponible</span>
+                    <span *ngIf="platocarta.stock < 1" class="badge" style="background-color: red;">• No
+                      disponible</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Mensaje cuando no hay platos -->
+        <div class="row" *ngIf="platoscarta.length === 0">
+          <div class="alert alert-warning" role="alert">
+            No hay platos a la carta por mostrar.
+          </div>
+        </div>
+        <!-- Paginación -->
+        <nav *ngIf="totalPagesCarta > 1">
+          <ul class="pagination justify-content-center mt-4">
+            <li class="page-item" [class.disabled]="currentCartaPage === 1">
+              <a class="page-link" (click)="onCartaPageChange(currentCartaPage - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item" *ngFor="let page of getPaginationArray(totalPagesCarta)"
+              [class.active]="page === currentCartaPage">
+              <a class="page-link" (click)="onCartaPageChange(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentCartaPage === totalPagesCarta">
+              <a class="page-link" (click)="onCartaPageChange(currentCartaPage + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+      </div>
+    </section>
+
+    <section id="platos-menu" class="platos-menu">
+      <div class="container">
+        <div class="section-title">
+          <h2>Platos <span>Menú</span></h2>
+          <p>Explora nuestra variedad de platos de menú disponibles</p>
+        </div>
+        <div class="row">
+          <div class="col-lg-3 col-md-4 col-sm-6 mb-4" *ngFor="let platomenu of paginatedPlatosMenu">
+            <div class="card shadow-sm h-100">
+              <img class="card-img-top" [src]="platomenu.image" alt="Imagen de plato">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ platomenu.nombre }}</h5>
+                <p class="card-text">{{ platomenu.descripcion }}</p>
+                <span class="card-text">{{ platomenu.menu_detalle.nombre }}</span>
+                <span class="badge card-text"> {{ platomenu.restauranteDetalle.nombre }}</span>
+
+                <div class="mt-auto">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div style="color: #ffb03b; font-weight: 600;">S/ {{ platomenu.precio.toFixed(2) }}</div>
+                    <div style="color: grey; text-decoration: line-through;">S/ {{
+                      getPrecioTachado(platomenu.precio).toFixed(2) }}</div>
+                    <span *ngIf="platomenu.stock >= 1" class="badge" style="background-color: green;">•
+                      Disponible</span>
+                    <span *ngIf="platomenu.stock < 1" class="badge" style="background-color: red;">• No
+                      disponible</span>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Mensaje cuando no hay platos -->
+        <div class="row" *ngIf="platosmenu.length === 0">
+          <div class="alert alert-warning" role="alert">
+            No hay platos menú por mostrar.
+          </div>
+        </div>
+        <!-- Paginación -->
+        <nav *ngIf="totalPagesMenu > 1">
+          <ul class="pagination justify-content-center mt-4">
+            <li class="page-item" [class.disabled]="currentMenuPage === 1">
+              <a class="page-link" (click)="onMenuPageChange(currentMenuPage - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item" *ngFor="let page of getPaginationArray(totalPagesMenu)"
+              [class.active]="page === currentMenuPage">
+              <a class="page-link" (click)="onMenuPageChange(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentMenuPage === totalPagesMenu">
+              <a class="page-link" (click)="onMenuPageChange(currentMenuPage + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- listado de restaurantes  -->
+<div class="container">
+  <div class="section-title">
+    <h2>Nuestros <span>Restaurantes</span></h2>
+    <p>Explora nuestra variedad de restaurantes disponibles</p>
+  </div>
+  <div class="row">
+    <div class="col-lg-4 col-md-6 mb-4"
+      *ngFor="let restaurante of restaurantes | slice:(currentRestaurantesPage - 1) * itemsPerPage:currentRestaurantesPage * itemsPerPage">
+      <div class="card shadow-sm h-100 d-flex flex-column">
+        <img class="card-img-top" [src]="restaurante.media.logo" alt="Imagen del Restaurante">
+        <div class="card-body mt-auto">
+          <h5 class="card-title">{{ restaurante.nombre }}</h5>
+          <p class="card-text">{{ restaurante.tipoCocina }}</p>
+
+          <div class="card-text">
+            <strong>Horario de apertura:</strong>
+            <div *ngFor="let dia of ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']">
+              <div *ngIf="restaurante.horario && restaurante.horario[dia] && restaurante.horario[dia].abierto">
+                <strong>{{ dia | titlecase }}:</strong>
+                <span *ngFor="let turno of restaurante.horario[dia].turnos">
+                  {{ turno.apertura }} - {{ turno.cierre }}
+                </span>
+              </div>
+              <div *ngIf="restaurante.horario && restaurante.horario[dia] && !restaurante.horario[dia].abierto">
+                <strong>{{ dia | titlecase }}:</strong> Cerrado
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn-generar-reporte " (click)="verRestauranteDetalle(restaurante)">Ver Restaurante</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="restaurantes.length === 0">
+    <div class="alert alert-warning" role="alert" style="text-align : center;">
+      No hay restaurantes por mostrar.
+    </div>
+  </div>
+  <!-- Paginación -->
+  <nav *ngIf="totalPagesRestaurantes > 1">
+    <ul class="pagination justify-content-center mt-4">
+      <li class="page-item" [class.disabled]="currentRestaurantesPage === 1">
+        <a class="page-link" (click)="onRestaurantesPageChange(currentRestaurantesPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item" *ngFor="let page of getPaginationArray(totalPagesRestaurantes)"
+        [class.active]="page === currentRestaurantesPage">
+        <a class="page-link" (click)="onRestaurantesPageChange(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentRestaurantesPage === totalPagesRestaurantes">
+        <a class="page-link" (click)="onRestaurantesPageChange(currentRestaurantesPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- ======= Footer ======= -->
+<footer id="footer">
+  <div class="container">
+    <h3>PRS</h3>
+    <p>Proyecto de responsabilidad social 2024 de la promoción AS212</p>
+    <div class="social-links">
+      <a href="https://www.linkedin.com/" target="_blank" class="linkedin"><i class="bi bi-linkedin"></i></a>
+      <a href="" target="_blank" class="gmail"><i class="bi bi-google"></i></a>
+      <a href="https://web.facebook.com/" target="_blank" class="facebook"><i class="bi bi-facebook"></i></a>
+      <a href="https://github.com/PedroLuyo/A212_PRS/tree/frontend" target="_blank" class="github"><i
+          class="bi bi-github"></i></a>
+    </div>
+    <div class="copyright">
+      &copy; Copyright <strong><span>PRS</span></strong>. Todos los derechos reservados.
+    </div>
+    <div class="credits">
+      Designed by 2024 AS212
+    </div>
+  </div>
+</footer>
+<!-- End Footer -->
