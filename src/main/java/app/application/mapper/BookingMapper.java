@@ -4,6 +4,7 @@ import app.domain.model.dto.BookingDtos.*;
 import app.domain.model.entity.BookingEntities.*;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,13 +26,13 @@ public class BookingMapper {
                 .totalAmount(entity.getTotalAmount())
                 .stage(entity.getStage())
                 .status(entity.getStatus())
-                .details(details.stream()
+                .details(details != null ? details.stream()
                         .map(detail -> toDetailDto(detail,
-                                menuDetails.stream()
+                                menuDetails != null ? menuDetails.stream()
                                         .filter(md -> md.getBookingDetailId().equals(detail.getId()))
                                         .map(this::toMenuDetailDto)
-                                        .collect(Collectors.toList())))
-                        .collect(Collectors.toList()))
+                                        .collect(Collectors.toList()) : new ArrayList<>()))
+                        .collect(Collectors.toList()) : new ArrayList<>())
                 .build();
     }
 
@@ -57,15 +58,15 @@ public class BookingMapper {
         return BookingDetailDto.builder()
                 .id(entity.getId())
                 .bookingId(entity.getBookingId())
-                .isMenu(entity.getIsMenu())
-                .isProduct(entity.getIsProduct())
+                .isMenu(entity.getIsMenu() != null ? entity.getIsMenu() : false)
+                .isProduct(entity.getIsProduct() != null ? entity.getIsProduct() : false)
                 .itemIdentifier(entity.getItemIdentifier())
                 .itemName(entity.getItemName())
                 .quantity(entity.getQuantity())
-                .unitPrice(entity.getUnitPrice())
+                .unitPrice(entity.getIsMenu() ? null : entity.getUnitPrice()) // null si es menú
                 .subtotal(entity.getSubtotal())
                 .menuDetails(menuDetails)
-                .status(entity.getStatus())
+                .status(entity.getStatus() != null ? entity.getStatus() : true)
                 .build();
     }
 
@@ -73,14 +74,14 @@ public class BookingMapper {
         return BookingDetail.builder()
                 .id(dto.getId())
                 .bookingId(bookingId)
-                .isMenu(dto.getIsMenu())
-                .isProduct(dto.getIsProduct())
+                .isMenu(dto.getIsMenu() != null ? dto.getIsMenu() : false)
+                .isProduct(dto.getIsProduct() != null ? dto.getIsProduct() : false)
                 .itemIdentifier(dto.getItemIdentifier())
                 .itemName(dto.getItemName())
                 .quantity(dto.getQuantity())
-                .unitPrice(dto.getUnitPrice())
+                .unitPrice(dto.getIsMenu() ? null : dto.getUnitPrice()) // null si es menú
                 .subtotal(dto.getSubtotal())
-                .status(dto.getStatus())
+                .status(true) // Siempre true al crear
                 .build();
     }
 

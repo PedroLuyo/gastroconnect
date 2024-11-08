@@ -1,5 +1,6 @@
 package app.domain.model.kafka;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -10,21 +11,23 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class BookingCreatedMessage {
-    @JsonProperty("identificadorReserva")
+    @JsonProperty("identifier")
     private Integer bookingId;
 
-    @JsonProperty("nombreCliente")
+    @JsonProperty("clientName")
     private String clientName;
 
-    @JsonProperty("correoCliente")
+    @JsonProperty("clientEmail")
     private String clientEmail;
 
-    @JsonProperty("nombreRestaurante")
+    @JsonProperty("restaurantName")
     private String restaurantName;
 
-    @JsonProperty("fechaReserva")
-    private LocalDate reservationDate;
-
-    @JsonProperty("horaReserva")
+    @JsonFormat(pattern = "HH:mm")
+    @JsonProperty("reservationTime")
     private LocalTime reservationTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonProperty("reservationDate")
+    private LocalDate reservationDate;
 }

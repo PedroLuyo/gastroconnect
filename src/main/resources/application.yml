@@ -10,8 +10,8 @@ spring:
 
   r2dbc:
     url: r2dbc:postgresql://db-bookings-gc-phpl-12d9.k.aivencloud.com:26287/db-bookings?sslmode=require
-    username: develop
-    password: AVNS_3HILIRV3eVmT6ugXYJY
+    username: avnadmin
+    password: AVNS_9iyWAkTF185N9KM7fJY
 
   datasource:
     driver-class-name: org.postgresql.Driver

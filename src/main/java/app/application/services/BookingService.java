@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class BookingService implements BookingUseCase {
@@ -30,12 +33,13 @@ public class BookingService implements BookingUseCase {
     public Mono<BookingDto> createBooking(BookingDto bookingDto) {
         return Mono.just(mapper.toEntity(bookingDto))
                 .map(booking -> {
-                    booking.setStage("P"); // Pendiente por defecto
+                    booking.setStage("P");
+                    booking.setStatus(true);
                     return booking;
                 })
                 .flatMap(bookingRepository::save)
                 .flatMap(savedBooking -> {
-                    // Crear y publicar mensaje
+                    // Publicar mensaje
                     BookingCreatedMessage message = BookingCreatedMessage.builder()
                             .bookingId(savedBooking.getId())
                             .clientName(savedBooking.getClientName())
@@ -45,10 +49,38 @@ public class BookingService implements BookingUseCase {
                             .reservationTime(savedBooking.getReservationTime())
                             .build();
 
-                    return eventPublisher.publishBookingCreated(message)
-                            .then(Mono.just(mapper.toDto(savedBooking, null, null)));
+                    // Procesar detalles
+                    return Flux.fromIterable(bookingDto.getDetails())
+                            .flatMap(detailDto -> {
+                                BookingDetail detail = mapper.toDetailEntity(detailDto, savedBooking.getId());
+                                detail.setStatus(true);
+                                return detailRepository.save(detail)
+                                        .flatMap(savedDetail -> {
+                                            if (Boolean.TRUE.equals(detail.getIsMenu())) {
+                                                return Flux.fromIterable(detailDto.getMenuDetails())
+                                                        .flatMap(menuDetailDto -> {
+                                                            BookingMenuDetail menuDetail = mapper.toMenuDetailEntity(menuDetailDto, savedDetail.getId());
+                                                            menuDetail.setStatus(true);
+                                                            return menuDetailRepository.save(menuDetail);
+                                                        })
+                                                        .collectList()
+                                                        .thenReturn(savedDetail);
+                                            }
+                                            return Mono.just(savedDetail);
+                                        });
+                            })
+                            .collectList()
+                            .flatMap(savedDetails ->
+                                    menuDetailRepository.findAll()
+                                            .collectList()
+                                            .flatMap(menuDetails ->
+                                                    eventPublisher.publishBookingCreated(message)
+                                                            .thenReturn(mapper.toDto(savedBooking, savedDetails, menuDetails))
+                                            )
+                            );
                 });
     }
+
 
     @Override
     public Mono<BookingDto> updateBooking(Integer id, BookingDto bookingDto) {
@@ -71,10 +103,17 @@ public class BookingService implements BookingUseCase {
                         detailRepository.findByBookingId(booking.getId())
                                 .collectList()
                                 .flatMap(details ->
-                                        menuDetailRepository.findAll()
+                                        menuDetailRepository.findByBookingDetailIdIn(
+                                                        details.stream()
+                                                                .map(BookingDetail::getId)
+                                                                .collect(Collectors.toList())
+                                                )
                                                 .collectList()
                                                 .map(menuDetails ->
-                                                        mapper.toDto(booking, details, menuDetails))));
+                                                        mapper.toDto(booking, details, menuDetails)
+                                                )
+                                )
+                );
     }
 
     @Override
@@ -97,11 +136,20 @@ public class BookingService implements BookingUseCase {
                         detailRepository.findByBookingId(booking.getId())
                                 .collectList()
                                 .flatMap(details ->
-                                        menuDetailRepository.findAll()
+                                        menuDetailRepository.findByBookingDetailIdIn(
+                                                        details.stream()
+                                                                .map(BookingDetail::getId)
+                                                                .collect(Collectors.toList())
+                                                )
                                                 .collectList()
                                                 .map(menuDetails ->
-                                                        mapper.toDto(booking, details, menuDetails))));
+                                                        mapper.toDto(booking, details, menuDetails)
+                                                )
+                                )
+                );
     }
+
+
 
     @Override
     public Flux<BookingDto> getBookingsByRestaurantIdentifier(Integer restaurantIdentifier) {
@@ -154,9 +202,7 @@ public class BookingService implements BookingUseCase {
     public Mono<BookingDto> confirmBooking(Integer id) {
         return bookingRepository.findById(id)
                 .flatMap(booking -> {
-                    if ("D".equals(booking.getStage())) {
-                        return Mono.error(new IllegalStateException("No se puede confirmar una reserva declinada"));
-                    }
+
                     booking.setStage("C");
                     return bookingRepository.save(booking)
                             .flatMap(savedBooking -> {
@@ -181,9 +227,6 @@ public class BookingService implements BookingUseCase {
     public Mono<BookingDto> declineBooking(Integer id) {
         return bookingRepository.findById(id)
                 .flatMap(booking -> {
-                    if ("C".equals(booking.getStage())) {
-                        return Mono.error(new IllegalStateException("No se puede declinar una reserva confirmada"));
-                    }
                     booking.setStage("D");
                     return bookingRepository.save(booking)
                             .flatMap(savedBooking ->
@@ -204,7 +247,11 @@ public class BookingService implements BookingUseCase {
                         detailRepository.findByBookingId(booking.getId())
                                 .collectList()
                                 .flatMap(details ->
-                                        menuDetailRepository.findAll()
+                                        menuDetailRepository.findByBookingDetailIdIn(
+                                                        details.stream()
+                                                                .map(BookingDetail::getId)
+                                                                .collect(Collectors.toList())
+                                                )
                                                 .collectList()
                                                 .map(menuDetails ->
                                                         mapper.toDto(booking, details, menuDetails))));
@@ -217,7 +264,11 @@ public class BookingService implements BookingUseCase {
                         detailRepository.findByBookingId(booking.getId())
                                 .collectList()
                                 .flatMap(details ->
-                                        menuDetailRepository.findAll()
+                                        menuDetailRepository.findByBookingDetailIdIn(
+                                                        details.stream()
+                                                                .map(BookingDetail::getId)
+                                                                .collect(Collectors.toList())
+                                                )
                                                 .collectList()
                                                 .map(menuDetails ->
                                                         mapper.toDto(booking, details, menuDetails))));
