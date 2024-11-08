@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reserva Recibida - GastroConnect</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+<h2 style="color: #2c3e50;">Reserva Recibida - GastroConnect</h2>
+<p>Estimado/a <strong>${clientName}</strong>,</p>
+<p>Hemos recibido su solicitud de reserva. Estamos procesando los detalles y pronto recibirá la confirmación.</p>
+
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+    <h3 style="color: #2c3e50; margin-top: 0;">Detalles de la Solicitud:</h3>
+    <p><strong>Restaurante:</strong> ${restaurantName}</p>
+    <p><strong>Fecha:</strong> ${reservationDate}</p>
+    <p><strong>Hora:</strong> ${reservationTime}</p>
+    <p><strong>Número de Solicitud:</strong> #${identifier}</p>
+</div>
+
+<p>Le notificaremos por correo electrónico cuando su reserva sea confirmada.</p>
+
+<hr style="border: 1px solid #eee; margin: 20px 0;">
+<p style="color: #666; font-size: 12px;">Este es un mensaje automático, por favor no responda a este correo.</p>
+</body>
+</html>
