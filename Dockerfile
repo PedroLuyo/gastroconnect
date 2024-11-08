@@ -1,4 +1,3 @@
-# AngeloLaMadrid/AS212S6_T02_SolCoins
 # Usando Node con versión 18 para construir la aplicación Angular
 FROM node:18-alpine AS build
 
@@ -23,7 +22,7 @@ FROM nginx:alpine
 # Copiar la carpeta de construcción al directorio correcto para nginx
 # ---- IMPORTANTE reemplazar "CAMBIAME" por el nombre de la aplicacion----
 
-COPY --from=build /app/dist/angular-17-firebase-crud/browser /usr/share/nginx/html
+COPY --from=build /app/dist/web-gastroconnect/browser /usr/share/nginx/html
 
 EXPOSE 4200
 
