@@ -39,10 +39,9 @@ git reset --hard
 git fetch origin frontend
 git reset --hard origin/frontend
 ```
-✔️ Resumen
+✔️ COMANDOS KUBERNETES
 ```sh
-git checkout frontend
-git reset --hard
-git fetch origin frontend
-git reset --hard origin/frontend
+kubectl apply -f kubernetes.yaml
+kubectl get pods
+kubectl get services
 ```
