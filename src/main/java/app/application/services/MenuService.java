@@ -2,6 +2,7 @@ package app.application.services;
 
 import app.domain.model.menuplate.MenuDto;
 import app.domain.ports.input.MenuUseCase;
+import app.domain.ports.output.MenuItemRepository;
 import app.domain.ports.output.MenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 public class MenuService implements MenuUseCase {
 
     private final MenuRepository menuRepository;
+    private final MenuItemRepository menuItemRepository;
 
     @Override
     public Mono<MenuDto> createMenu(MenuDto menuDto) {
@@ -63,16 +65,46 @@ public class MenuService implements MenuUseCase {
 
     @Override
     public Flux<MenuDto> getAllMenus() {
-        return menuRepository.findAllByOrderByIdentifierAsc();
+        return menuRepository.findAllByOrderByIdentifierAsc()
+                .flatMap(menu ->
+                        Flux.fromIterable(menu.getMenuItemsIdentifier())
+                                .flatMap(menuItemRepository::findByIdentifier)
+                                .collectList()
+                                .map(menuItems -> {
+                                    menu.setMenuItems(menuItems);
+                                    return menu;
+                                })
+                );
     }
+
 
     @Override
     public Mono<MenuDto> getMenuByIdentifier(int identifier) {
-        return menuRepository.findByIdentifier(identifier);
+        return menuRepository.findByIdentifier(identifier)
+                .flatMap(menu ->
+                        Flux.fromIterable(menu.getMenuItemsIdentifier())
+                                .flatMap(menuItemRepository::findByIdentifier)
+                                .collectList()
+                                .map(menuItems -> {
+                                    menu.setMenuItems(menuItems);
+                                    return menu;
+                                })
+                );
     }
 
     @Override
     public Flux<MenuDto> getMenusByRestaurantIdentifier(int restaurantIdentifier) {
-        return menuRepository.findByRestaurantIdentifier(restaurantIdentifier);
+        return menuRepository.findByRestaurantIdentifier(restaurantIdentifier)
+                .flatMap(menu ->
+                        Flux.fromIterable(menu.getMenuItemsIdentifier())
+                                .flatMap(menuItemRepository::findByIdentifier)
+                                .collectList()
+                                .map(menuItems -> {
+                                    menu.setMenuItems(menuItems);
+                                    return menu;
+                                })
+                );
     }
+
+
 }

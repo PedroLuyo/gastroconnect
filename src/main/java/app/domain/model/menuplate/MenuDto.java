@@ -53,6 +53,10 @@ public class MenuDto {
     @JsonProperty("identificadoresItemsMenu")
     private List<Integer> menuItemsIdentifier;
 
+    @Field("menu_items")
+    @JsonProperty("itemsMenu")
+    private List<MenuItemDto> menuItems; // New field for detailed items
+
     @Field("availability")
     @JsonProperty("disponibilidad")
     private Availability availability;
