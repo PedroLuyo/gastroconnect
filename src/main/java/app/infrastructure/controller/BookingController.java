@@ -56,4 +56,14 @@ public class BookingController {
     public Mono<BookingDto> restoreBooking(@PathVariable Integer id) {
         return bookingUseCase.restoreBooking(id);
     }
+
+    @PutMapping("/confirm/{id}")
+    public Mono<BookingDto> confirmBooking(@PathVariable Integer id) {
+        return bookingUseCase.confirmBooking(id);
+    }
+
+    @PutMapping("/decline/{id}")
+    public Mono<BookingDto> declineBooking(@PathVariable Integer id) {
+        return bookingUseCase.declineBooking(id);
+    }
 }

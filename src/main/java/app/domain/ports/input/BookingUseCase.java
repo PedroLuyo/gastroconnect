@@ -13,4 +13,6 @@ public interface BookingUseCase {
     Flux<BookingDto> getBookingsByRestaurantIdentifier(Integer restaurantIdentifier);
     Mono<BookingDto> logicalDeleteBooking(Integer id);
     Mono<BookingDto> restoreBooking(Integer id);
+    Mono<BookingDto> confirmBooking(Integer id);
+    Mono<BookingDto> declineBooking(Integer id);
 }

@@ -147,4 +147,44 @@ public class BookingService implements BookingUseCase {
                                                                     mapper.toDto(savedBooking, details, menuDetails))));
                 });
     }
+
+    @Override
+    public Mono<BookingDto> confirmBooking(Integer id) {
+        return bookingRepository.findById(id)
+                .flatMap(booking -> {
+                    if ("D".equals(booking.getStage())) {
+                        return Mono.error(new IllegalStateException("No se puede confirmar una reserva declinada"));
+                    }
+                    booking.setStage("C");
+                    return bookingRepository.save(booking)
+                            .flatMap(savedBooking ->
+                                    detailRepository.findByBookingId(savedBooking.getId())
+                                            .collectList()
+                                            .flatMap(details ->
+                                                    menuDetailRepository.findAll()
+                                                            .collectList()
+                                                            .map(menuDetails ->
+                                                                    mapper.toDto(savedBooking, details, menuDetails))));
+                });
+    }
+
+    @Override
+    public Mono<BookingDto> declineBooking(Integer id) {
+        return bookingRepository.findById(id)
+                .flatMap(booking -> {
+                    if ("C".equals(booking.getStage())) {
+                        return Mono.error(new IllegalStateException("No se puede declinar una reserva confirmada"));
+                    }
+                    booking.setStage("D");
+                    return bookingRepository.save(booking)
+                            .flatMap(savedBooking ->
+                                    detailRepository.findByBookingId(savedBooking.getId())
+                                            .collectList()
+                                            .flatMap(details ->
+                                                    menuDetailRepository.findAll()
+                                                            .collectList()
+                                                            .map(menuDetails ->
+                                                                    mapper.toDto(savedBooking, details, menuDetails))));
+                });
+    }
 }

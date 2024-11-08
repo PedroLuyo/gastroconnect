@@ -51,6 +51,9 @@ public class BookingDtos {
         @JsonProperty("montoTotal")
         private BigDecimal totalAmount;
 
+        @JsonProperty("confirmado")
+        private Boolean confirmed;
+
         @JsonProperty("detalles")
         private List<BookingDetailDto> details;
 

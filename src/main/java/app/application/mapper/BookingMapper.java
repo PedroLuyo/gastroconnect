@@ -23,6 +23,7 @@ public class BookingMapper {
                 .reservationDate(entity.getReservationDate())
                 .reservationTime(entity.getReservationTime())
                 .totalAmount(entity.getTotalAmount())
+                .confirmed(entity.getConfirmed())
                 .status(entity.getStatus())
                 .details(details.stream()
                         .map(detail -> toDetailDto(detail,
@@ -47,6 +48,7 @@ public class BookingMapper {
                 .reservationDate(dto.getReservationDate())
                 .reservationTime(dto.getReservationTime())
                 .totalAmount(dto.getTotalAmount())
+                .confirmed(dto.getConfirmed())
                 .status(dto.getStatus())
                 .build();
     }

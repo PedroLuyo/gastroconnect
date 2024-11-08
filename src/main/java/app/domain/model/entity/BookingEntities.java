@@ -33,6 +33,7 @@ public class BookingEntities {
         private LocalDate reservationDate;
         private LocalTime reservationTime;
         private BigDecimal totalAmount;
+        private String stage;  // P, C, D
         private Boolean status;
         private LocalDateTime createdAt;
     }
