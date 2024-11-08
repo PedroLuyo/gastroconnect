@@ -77,7 +77,7 @@ public class BookingService implements BookingUseCase {
 
     @Override
     public Mono<BookingDto> getBookingByUid(String uid) {
-        return bookingRepository.findByUid(uid)
+        return bookingRepository.findFirstByUid(uid)  // Usamos el nuevo método
                 .flatMap(booking ->
                         detailRepository.findByBookingId(booking.getId())
                                 .collectList()
@@ -186,5 +186,31 @@ public class BookingService implements BookingUseCase {
                                                             .map(menuDetails ->
                                                                     mapper.toDto(savedBooking, details, menuDetails))));
                 });
+    }
+
+    @Override
+    public Flux<BookingDto> getBookingsByUid(String uid) {
+        return bookingRepository.findByUid(uid)
+                .flatMap(booking ->
+                        detailRepository.findByBookingId(booking.getId())
+                                .collectList()
+                                .flatMap(details ->
+                                        menuDetailRepository.findAll()
+                                                .collectList()
+                                                .map(menuDetails ->
+                                                        mapper.toDto(booking, details, menuDetails))));
+    }
+
+    @Override
+    public Flux<BookingDto> getBookingsByRestaurantRuc(Long ruc) {
+        return bookingRepository.findByRestaurantRuc(ruc)
+                .flatMap(booking ->
+                        detailRepository.findByBookingId(booking.getId())
+                                .collectList()
+                                .flatMap(details ->
+                                        menuDetailRepository.findAll()
+                                                .collectList()
+                                                .map(menuDetails ->
+                                                        mapper.toDto(booking, details, menuDetails))));
     }
 }

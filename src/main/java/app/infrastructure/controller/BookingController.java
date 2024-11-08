@@ -66,4 +66,14 @@ public class BookingController {
     public Mono<BookingDto> declineBooking(@PathVariable Integer id) {
         return bookingUseCase.declineBooking(id);
     }
+
+    @GetMapping("/obtain/client/{uid}")
+    public Flux<BookingDto> getBookingsByUid(@PathVariable String uid) {
+        return bookingUseCase.getBookingsByUid(uid);
+    }
+
+    @GetMapping("/obtain/restaurant/ruc/{ruc}")
+    public Flux<BookingDto> getBookingsByRestaurantRuc(@PathVariable Long ruc) {
+        return bookingUseCase.getBookingsByRestaurantRuc(ruc);
+    }
 }
