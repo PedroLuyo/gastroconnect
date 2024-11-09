@@ -32,14 +32,14 @@ export class DetallesComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const restauranteId = +this.route.snapshot.params['id'];
-    this.obtenerRestaurante(restauranteId);
+    const identificador = +this.route.snapshot.params['identificador'];
+    this.obtenerRestaurante(identificador);
     this.actualizarEstadoApertura();
     setInterval(() => this.actualizarEstadoApertura(), 60000);
   }
 
-  obtenerRestaurante(id: number): void {
-    this.restauranteService.obtenerRestaurantePorId(id).subscribe(
+  obtenerRestaurante(identificador: number): void {
+    this.restauranteService.obtenerRestaurantePorId(identificador).subscribe(
       (restaurante: any) => {
         this.restauranteSeleccionado = restaurante;
         this.verificarEstadoRestaurante();
