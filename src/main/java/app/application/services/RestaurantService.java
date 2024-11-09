@@ -92,9 +92,11 @@ public class RestaurantService implements RestaurantUseCase {
     }
 
     @Override
-    public Mono<RestaurantDto> getRestaurantByUid(String uid) {
-        return restaurantRepository.findByUid(uid);
+    public Flux<RestaurantDto> getRestaurantByUid(String uid) {
+        return restaurantRepository.findAllByUid(uid)
+                .switchIfEmpty(Flux.empty());
     }
+
 
 
 }

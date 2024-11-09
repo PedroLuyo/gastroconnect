@@ -13,6 +13,6 @@ public interface RestaurantUseCase {
     Mono<RestaurantDto> restoreRestaurant(int identifier);
     Flux<RestaurantDto> getAllRestaurants();
     Mono<RestaurantDto> getRestaurantByIdentifier(int identifier);
-    Mono<RestaurantDto> getRestaurantByUid(String uid);
+    Flux<RestaurantDto> getRestaurantByUid(String uid);
 
 }

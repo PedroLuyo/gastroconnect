@@ -9,7 +9,7 @@ public interface RestaurantRepository extends ReactiveMongoRepository<Restaurant
     Mono<RestaurantDto> findByIdentifier(int identifier);
     Mono<RestaurantDto> findFirstByOrderByIdentifierDesc();
     Flux<RestaurantDto> findAllByOrderByIdentifierAsc();
-    Mono<RestaurantDto> findByUid(String uid);
     Mono<RestaurantDto> findByBusinessInfo_Ruc(Long ruc);
 
+    Flux<RestaurantDto> findAllByUid(String uid);  // Este es el método que usaremos
 }

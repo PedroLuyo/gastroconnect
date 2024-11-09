@@ -41,9 +41,10 @@ public class RestaurantController {
     }
 
     @GetMapping("/obtain/uid/{uid}")
-    public Mono<RestaurantDto> getRestaurantByUid(@PathVariable String uid) {
+    public Flux<RestaurantDto> getRestaurantByUid(@PathVariable String uid) {
         return restaurantUseCase.getRestaurantByUid(uid);
     }
+
 
     @PutMapping("/delete/{sequence}")
     public Mono<RestaurantDto> logicalDeleteRestaurant(@PathVariable int sequence) {
