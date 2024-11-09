@@ -1,15 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { RestauranteService } from '../../../services/restaurant/restaurante.service';
-import jsPDF from 'jspdf';
+import { RestaurantService } from './restaurant.service';
 import { AuthService } from '../../../services/auth/authService';
-import { CloudinaryService } from '../../../services/cloudinary/Cloudinary.service';
-import { map, Observable } from 'rxjs';
-
-declare var $: any;
-
-
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-restaurante',
@@ -17,424 +10,281 @@ declare var $: any;
   styleUrls: ['./restaurante.component.css']
 })
 export class RestauranteComponent implements OnInit {
-  restauranteForm: FormGroup;
-  restaurantes: any[] = [];
-  restauranteSeleccionado: any = null;
-  selectedFile: File | undefined;
-  imagenPreview: string | ArrayBuffer | null = null;
-  opcionImagen: string = 'subir'; // o 'url', según prefieras inicialmente
-  platosMenu: any[] = [];
-  platosCarta: any[] = [];
-  bebidas: any[] = [];
-  mostrarPresentacionRestaurante: boolean = false;
-  estaAbierto: boolean = false;
-  userRuc: string = '';
-  page: number = 1; // Página actual
-  totalRestaurantes: number = 0; // Total de restaurantes
+  restaurants: any[] = [];
+  restaurantForm: FormGroup;
+  isEditMode: boolean = false;
+  identifier: number | null = null;
+  loading: boolean = true;
+  showForm: boolean = false;
+  logoPreview: string | null = null;
+  backgroundPreview: string | null = null;
 
   constructor(
-    private restauranteService: RestauranteService,
     private fb: FormBuilder,
-    private authService: AuthService,
-    private cloudinaryService: CloudinaryService
+    private restaurantService: RestaurantService,
+    private authService: AuthService
   ) {
-    this.restauranteForm = this.fb.group({
-      id: [''], // Se mantiene oculto para el usuario pero se utiliza internamente para edición
-      nombre: ['', Validators.required],
-      direccion: ['', Validators.required],
-      telefono: ['', Validators.required],
-      tipoCocina: [''],
-      capacidadPersonas: [''],
-      horaApertura: ['', Validators.required],
-      horaCierre: ['', Validators.required],
-      horarioFuncionamiento: [''],
-      estado: [true],
-      imagenRestaurante: [''],
-      urlImagen: [''],
-      docid: [''],
-      ruc: [''],
-
-      opcionImagen: ['subir'], // Añade esto si no está ya
+    this.restaurantForm = this.fb.group({
+      name: ['', Validators.required],
+      businessInfo: this.fb.group({
+        ruc: ['', [Validators.required, Validators.pattern('^[0-9]{11}$')]],
+        businessName: ['', Validators.required],
+        businessType: ['', Validators.required],
+        category: [[], Validators.required]
+      }),
+      contact: this.fb.group({
+        phone: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
+        email: ['', [Validators.required, Validators.email]],
+        website: [''],
+        socialMedia: this.fb.group({
+          facebook: [''],
+          instagram: [''],
+          x: [''],
+          youtube: ['']
+        })
+      }),
+      location: this.fb.group({
+        address: ['', Validators.required],
+        district: ['', Validators.required],
+        city: ['', Validators.required],
+        country: ['', Validators.required],
+        reference: ['']
+      }),
+      features: this.fb.group({
+        capacity: [null, [Validators.required, Validators.min(1)]],
+        hasParking: [false],
+        hasWifi: [false],
+        acceptsReservations: [false],
+        hasDelivery: [false],
+        hasTakeout: [false],
+        hasMenu: [false],
+        hasCarta: [false]
+      }),
+      logoFile: [null],
+      backgroundFile: [null]
     });
-    this.totalRestaurantes = 0;
-
   }
 
-  async ngOnInit(): Promise<void> {
-    const userUid = await this.authService.getUserUid();
-    this.restauranteForm.get('docid')?.setValue(userUid || ''); // Verifica que userUid no sea nulo
+  ngOnInit(): void {
+    this.loadRestaurants();
+  }
 
-
-    this.listarRestaurantes();
-
-    this.restauranteForm.get('opcionImagen')?.valueChanges.subscribe(value => {
-      this.opcionImagen = value;
-      // Resetea los valores relacionados con la imagen cuando cambia la opción
-      this.restauranteForm.patchValue({
-        urlImagen: '',
-        imagenRestaurante: ''
+  async loadRestaurants(): Promise<void> {
+    try {
+      const uid = await this.authService.getUserUid();
+      this.restaurantService.getRestaurantByUid(uid).subscribe({
+        next: (data) => {
+          this.restaurants = Array.isArray(data) ? data : [data];
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading restaurants:', error);
+          this.loading = false;
+          this.showErrorAlert('Error al cargar los restaurantes');
+        }
       });
-      this.selectedFile = undefined;
-      this.imagenPreview = null;
-    });
+    } catch (error) {
+      console.error('Error getting UID:', error);
+      this.loading = false;
+      this.showErrorAlert('Error al obtener la identificación del usuario');
+    }
   }
 
-  onFileSelected(event: any) {
-    const file: File = event.target.files?.length > 0 ? event.target.files[0] : null;
+  showCreateForm(): void {
+    this.isEditMode = false;
+    this.identifier = null;
+    this.restaurantForm.reset();
+    this.logoPreview = null;
+    this.backgroundPreview = null;
+    this.showForm = true;
+  }
+
+  editRestaurant(restaurant: any): void {
+    this.isEditMode = true;
+    this.identifier = restaurant.identifier;
+    this.restaurantForm.patchValue(restaurant);
+    this.logoPreview = restaurant.media?.logo;
+    this.backgroundPreview = restaurant.media?.background;
+    this.showForm = true;
+  }
+
+  onLogoSelected(event: any): void {
+    const file = event.target.files[0];
     if (file) {
-      this.selectedFile = file;
+      this.restaurantForm.patchValue({ logoFile: file });
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagenPreview = e.target.result;
+      reader.onload = (e) => {
+        this.logoPreview = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
   }
 
-  subirImagenYObtenerUrl(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!this.selectedFile) {
-        console.error('No se ha seleccionado ningún archivo.');
-        reject('No se ha seleccionado ningún archivo.');
-        return;
+  onBackgroundSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.restaurantForm.patchValue({ backgroundFile: file });
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.backgroundPreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  cancelEdit(): void {
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: "Perderá todos los cambios realizados",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'No, continuar editando'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.showForm = false;
+        this.restaurantForm.reset();
       }
-
-      const formData = new FormData();
-      formData.append('file', this.selectedFile);
-      formData.append('upload_preset', 'cloudinary-restaurants');
-
-      this.cloudinaryService.uploadImg(formData).subscribe(
-        (response: any) => {
-          if (response && response.secure_url) {
-            console.log('URL de la imagen subida:', response.secure_url);
-            resolve(response.secure_url);
-          } else {
-            console.error('No se recibió la URL de la imagen desde Cloudinary.');
-            reject('No se recibió la URL de la imagen desde Cloudinary.');
-          }
-        },
-        error => {
-          console.error('Error al subir imagen a Cloudinary:', error);
-          reject(error);
-        }
-      );
     });
   }
 
-  manejarImagenRestaurante(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const opcionImagen = this.restauranteForm.get('opcionImagen')?.value;
+  async onSubmit(): Promise<void> {
+    if (this.restaurantForm.valid) {
+      const formData = this.restaurantForm.value;
       
-      if (opcionImagen === 'subir' && this.selectedFile) {
-        this.subirImagenYObtenerUrl().then((urlImagen: string) => {
-          console.log('URL de imagen obtenida:', urlImagen); // Para depuración
-          this.restauranteForm.patchValue({ imagenRestaurante: urlImagen });
-          console.log('Formulario después de asignar URL:', this.restauranteForm.value); // Para depuración
-          resolve();
-        }).catch((error) => {
-          console.error('Error al subir imagen:', error); // Para depuración
-          reject(error);
+      try {
+        Swal.fire({
+          title: 'Procesando...',
+          text: 'Por favor espere',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
         });
-      } else if (opcionImagen === 'url') {
-        const urlImagen = this.restauranteForm.get('urlImagen')?.value;
-        if (urlImagen) {
-          this.restauranteForm.patchValue({ imagenRestaurante: urlImagen });
-          console.log('Formulario después de asignar URL:', this.restauranteForm.value); // Para depuración
-          resolve();
-        } else {
-          reject('Por favor ingrese una URL de imagen válida.');
-        }
-      } else {
-        reject('Por favor seleccione una imagen o ingrese una URL.');
-      }
-    });
-  }
 
-  manejarRestauranteForm(): void {
-    if (this.restauranteForm.valid) {
-      const ruc = this.restauranteForm.get('ruc')?.value;
-  
-      // Si estamos editando un restaurante existente, permitimos continuar
-      if (this.restauranteForm.get('id')?.value) {
-        this.procesarFormulario();
-      } else {
-        // Verificamos si el RUC ya existe
-        this.restauranteService.verificarRucExistente(ruc).subscribe(
-          (existe: boolean) => {
-            if (existe) {
-              Swal.fire('Error', 'El RUC ingresado ya está en uso por otro restaurante.', 'error');
-            } else {
-              // Si estamos creando un nuevo restaurante, verificamos el límite
-              if (this.totalRestaurantes >= 3) {
-                Swal.fire('Límite alcanzado', 'No se pueden crear más de 3 restaurantes.', 'warning');
-              } else {
-                // Mostrar el SweetAlert de confirmación
-                Swal.fire({
-                  title: 'Confirmación',
-                  text: '¿Estás seguro de que deseas crear este restaurante? El RUC no se podrá editar más adelante.',
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonText: 'Sí, crear',
-                  cancelButtonText: 'No, cancelar'
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    this.procesarFormulario();
-                  }
-                });
-              }
+        if (this.isEditMode && this.identifier) {
+          this.restaurantService.updateRestaurant(this.identifier, formData).subscribe({
+            next: () => {
+              this.loadRestaurants();
+              this.showForm = false;
+              Swal.fire({
+                title: '¡Éxito!',
+                text: 'Restaurante actualizado correctamente',
+                icon: 'success'
+              });
+            },
+            error: (error) => {
+              console.error('Error updating restaurant:', error);
+              this.showErrorAlert('Error al actualizar el restaurante');
             }
-          },
-          (error) => {
-            console.error('Error al verificar RUC', error);
-            Swal.fire('Error', 'Hubo un problema al verificar el RUC. Por favor, inténtelo de nuevo.', 'error');
-          }
-        );
-      }
-    } else {
-      Swal.fire('Error', 'Por favor complete el formulario correctamente.', 'error');
-    }
-  }
-  
-  // Método auxiliar para procesar el formulario
-  private procesarFormulario(): void {
-    this.manejarImagenRestaurante().then(() => {
-      const restauranteData = this.restauranteForm.value;
-      restauranteData.horarioFuncionamiento = `${restauranteData.horaApertura} - ${restauranteData.horaCierre}`;
-      
-      console.log('Datos del restaurante antes de enviar:', restauranteData);
-      
-      if (restauranteData.id) {
-        this.editarRestaurante(restauranteData);
-      } else {
-        this.crearRestaurante(restauranteData);
-      }
-    }).catch((error) => {
-      console.error('Error al manejar la imagen:', error);
-      Swal.fire('Error', 'Hubo un problema al procesar la imagen. Por favor, inténtelo de nuevo.', 'error');
-    });
-  }
-
-  crearRestaurante(nuevoRestaurante: any): void {
-    this.restauranteService.crearRestaurante(nuevoRestaurante).subscribe(
-      (restauranteCreado: any) => {
-        Swal.fire('Creado!', 'El restaurante ha sido creado exitosamente.', 'success');
-        this.restauranteForm.reset();
-        this.listarRestaurantes(); // Esto actualizará el totalRestaurantes
-      },
-      (error: any) => {
-        console.error('Error al crear restaurante', error);
-        Swal.fire('Error', 'Hubo un problema al crear el restaurante. Por favor, inténtelo de nuevo.', 'error');
-      }
-    );
-  }
-
-
-
-
-  
-
-  editarRestaurante(restauranteActualizado: any): void {
-    const idRestaurante = restauranteActualizado.id;
-    this.restauranteService.editarRestaurante(idRestaurante, restauranteActualizado).subscribe(
-      (restauranteActualizado: any) => {
-        Swal.fire('Actualizado!', 'El restaurante ha sido actualizado exitosamente.', 'success');
-        this.restauranteForm.reset();
-        this.listarRestaurantes();
-      },
-      (error: any) => {
-        console.error('Error al actualizar restaurante', error);
-        Swal.fire('Error', 'Hubo un problema al actualizar el restaurante. Por favor, inténtelo de nuevo.', 'error');
-      }
-    );
-  }
-
-  listarRestaurantes(): void {
-    this.restauranteService.obtenerTodosPorGestor().subscribe(
-      (data: any[]) => {
-        this.restaurantes = data;
-        this.totalRestaurantes = data.length;
-      },
-      (error: any) => {
-        console.error('Error al obtener restaurantes', error);
-        Swal.fire('Error', 'Hubo un problema al obtener los restaurantes. Por favor, inténtelo de nuevo.', 'error');
-      }
-    );
-  }
-
-  cancelarEdicion(): void {
-    this.restauranteForm.reset();
-  }
-
-  desactivarRestaurante(restaurante: any): void {
-    this.restauranteService.desactivarRestaurante(restaurante.id).subscribe(
-      () => {
-        Swal.fire('Desactivado!', 'El restaurante ha sido desactivado exitosamente.', 'success');
-        this.listarRestaurantes();
-      },
-      (error: any) => {
-        console.error('Error al desactivar restaurante', error);
-        Swal.fire('Error', 'Hubo un problema al desactivar el restaurante. Por favor, inténtelo de nuevo.', 'error');
-      }
-    );
-  }
-
-  restaurarRestaurante(restaurante: any): void {
-    this.restauranteService.restaurarRestaurante(restaurante.id).subscribe(
-      () => {
-        Swal.fire('Restaurado!', 'El restaurante ha sido restaurado exitosamente.', 'success');
-        this.listarRestaurantes();
-      },
-      (error: any) => {
-        console.error('Error al restaurar restaurante', error);
-        Swal.fire('Error', 'Hubo un problema al restaurar el restaurante. Por favor, inténtelo de nuevo.', 'error');
-      }
-    );
-  }
-
-  verRestaurante(restaurante: any): void {
-    // Primero, copiamos todos los datos del restaurante al formulario
-    this.restauranteForm.patchValue(restaurante);
-    
-    // Luego, manejamos específicamente el horarioFuncionamiento
-    if (restaurante.horarioFuncionamiento) {
-      // Asumimos que el formato es "HH:MM - HH:MM"
-      const [horaApertura, horaCierre] = restaurante.horarioFuncionamiento.split(' - ');
-      
-      // Actualizamos los campos específicos
-      this.restauranteForm.patchValue({
-        horaApertura: horaApertura,
-        horaCierre: horaCierre
-      });
-    }
-  
-    // Aseguramos que el ID y el estado se establezcan correctamente
-    this.restauranteForm.get('id')?.setValue(restaurante.id);
-    this.restauranteForm.get('estado')?.setValue(restaurante.estado);
-  
-    // Si hay una imagen, actualizamos la vista previa
-    if (restaurante.imagenRestaurante) {
-      this.imagenPreview = restaurante.imagenRestaurante;
-      this.restauranteForm.patchValue({
-        opcionImagen: 'url',
-        urlImagen: restaurante.imagenRestaurante
-      });
-    } else {
-      this.imagenPreview = null;
-      this.restauranteForm.patchValue({
-        opcionImagen: 'subir',
-        urlImagen: ''
-      });
-    }
-  }
-
-
-  exportarCSV(): void {
-    let csvData = 'Nombre,Dirección,Teléfono,Tipo de Cocina,Capacidad,Horario,Ruc\n';
-    
-    this.restaurantes.forEach(restaurante => {
-      csvData += `${restaurante.nombre},${restaurante.direccion},${restaurante.telefono},${restaurante.tipoCocina},${restaurante.capacidadPersonas},${restaurante.horarioFuncionamiento},${restaurante.ruc}\n`;
-    });
-  
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'reporte_restaurantes.csv');
-    link.style.visibility = 'hidden';
-  
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-  
-
-  exportarPDF(): void {
-    const doc = new jsPDF({
-      orientation: 'landscape'
-    });
-  
-    const img = new Image();
-    img.src = 'assets/img/Logo Transparente Gastro Connect.png';
-    img.onload = () => {
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = pageWidth * 0.2;
-      const logoHeight = img.height * (logoWidth / img.width);
-      const logoX = (pageWidth - logoWidth) / 2;
-      doc.addImage(img, 'PNG', logoX, 10, logoWidth, logoHeight);
-  
-      const slogan = "Disfruta de la mejor gastronomía con Gastro Connect";
-      const sloganX = pageWidth / 2;
-      const sloganY = logoHeight + 10;
-      doc.setTextColor(31, 30, 30);
-      doc.setFontSize(12);
-      doc.text(slogan, sloganX, sloganY, { align: 'center' });
-  
-      const fecha = new Date().toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }).replace(/ /g, '/').replace(/\//g, '-');
-  
-      doc.setFont('courier', 'bold');
-      doc.setFontSize(20);
-      const titulo = 'Reporte de Restaurantes';
-      const tituloY = sloganY + 10;
-      doc.text(titulo, 14, tituloY);
-  
-      doc.setFontSize(12);
-      const fechaX = pageWidth - 14;
-      doc.text(`Fecha: ${fecha}`, fechaX, tituloY, { align: 'right' });
-  
-      const head = [['Nombre', 'Dirección', 'Teléfono', 'Tipo de Cocina', 'Capacidad', 'Horario', 'Ruc']];
-      const data = this.restaurantes.map((restaurante) => [
-        restaurante.nombre,
-        restaurante.direccion,
-        restaurante.telefono,
-        restaurante.tipoCocina,
-        restaurante.capacidadPersonas,
-        restaurante.horarioFuncionamiento,
-        restaurante.ruc
-      ]);
-  
-      (doc as any).autoTable({
-        head: head,
-        body: data,
-        startY: tituloY + 10,
-        styles: {
-          cellWidth: 'auto',
-          fontSize: 10,
-          lineColor: [0, 0, 0],
-          lineWidth: 0.1
-        },
-        headStyles: {
-          fillColor: [0, 0, 0],
-          textColor: [255, 255, 255],
-          fontStyle: 'bold'
-        },
-        bodyStyles: {
-          textColor: [0, 0, 0]
-        },
-        alternateRowStyles: {
-          fillColor: [235, 235, 235]
+          });
+        } else {
+          const logoFile = this.restaurantForm.get('logoFile')?.value;
+          const backgroundFile = this.restaurantForm.get('backgroundFile')?.value;
+          
+          const observable = await this.restaurantService.createRestaurant(
+            formData,
+            logoFile,
+            backgroundFile
+          );
+          
+          observable.subscribe({
+            next: () => {
+              this.loadRestaurants();
+              this.showForm = false;
+              Swal.fire({
+                title: '¡Éxito!',
+                text: 'Restaurante creado correctamente',
+                icon: 'success'
+              });
+            },
+            error: (error) => {
+              console.error('Error creating restaurant:', error);
+              this.showErrorAlert('Error al crear el restaurante');
+            }
+          });
         }
-      });
-  
-      const pageCount = doc.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFont('courier', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(31, 30, 30);
-        const pageNumberText = `Página ${i} / ${pageCount}`;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const footerY = pageHeight - 10;
-        doc.text(pageNumberText, pageWidth - doc.getTextWidth(pageNumberText) - 10, footerY, { align: 'right' });
+      } catch (error) {
+        console.error('Error processing form:', error);
+        this.showErrorAlert('Error al procesar el formulario');
       }
-  
-      doc.save('reporte_restaurantes.pdf');
-    };
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: 'Por favor complete todos los campos requeridos correctamente',
+        icon: 'error'
+      });
+    }
   }
-  
-  
+
+  deleteRestaurant(identifier: number): void {
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: "Esta acción desactivará el restaurante",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, desactivar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.restaurantService.deleteRestaurant(identifier).subscribe({
+          next: () => {
+            this.loadRestaurants();
+            Swal.fire(
+              '¡Desactivado!',
+              'El restaurante ha sido desactivado correctamente',
+              'success'
+            );
+          },
+          error: (error) => {
+            console.error('Error deleting restaurant:', error);
+            this.showErrorAlert('Error al desactivar el restaurante');
+          }
+        });
+      }
+    });
+  }
+
+  restoreRestaurant(identifier: number): void {
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: "Esta acción reactivará el restaurante",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, reactivar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.restaurantService.restoreRestaurant(identifier).subscribe({
+          next: () => {
+            this.loadRestaurants();
+            Swal.fire(
+              '¡Reactivado!',
+              'El restaurante ha sido reactivado correctamente',
+              'success'
+            );
+          },
+          error: (error) => {
+            console.error('Error restoring restaurant:', error);
+            this.showErrorAlert('Error al reactivar el restaurante');
+          }
+        });
+      }
+    });
+  }
+
+  private showErrorAlert(message: string): void {
+    Swal.fire({
+      title: 'Error',
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+  }
 }

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RestauranteService } from '../../services/restaurant/restaurante.service';
 import { FormBuilder } from '@angular/forms';
-import { RestauranteMenuService } from '../../services/restaurantmenu/restaurantmenu.service';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -29,7 +28,6 @@ export class DetallesComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private restauranteService: RestauranteService,
-    private restauranteMenuService: RestauranteMenuService,
     private fb: FormBuilder,
   ) { }
 
@@ -46,7 +44,6 @@ export class DetallesComponent implements OnInit {
         this.restauranteSeleccionado = restaurante;
         this.verificarEstadoRestaurante();
         this.actualizarEstadoApertura();
-        this.cargarCartasMenus(restaurante.ruc); // Cargar cartas y menús después de obtener el restaurante
       },
       (error: any) => {
         console.error('Error al obtener el restaurante', error);
@@ -54,17 +51,7 @@ export class DetallesComponent implements OnInit {
     );
   }
 
-  cargarCartasMenus(ruc: number): void {
-    this.restauranteMenuService.obtenerCartasPorRuc(ruc).subscribe((platos: any[]) => {
-      this.platoscarta = platos.filter((plato: { estado: string }) => plato.estado === 'A');
-      this.updatePaginatedPlatosCarta();
-    });
-
-    this.restauranteMenuService.obtenerMenusPorRuc(ruc).subscribe((platos: any[]) => {
-      this.platosmenu = platos.filter((plato: { estado: string }) => plato.estado === 'A');
-      this.updatePaginatedPlatosMenu();
-    });
-  }
+ 
 
   onCartaPageChange(page: number): void {
     if (page < 1 || page > this.totalPagesCarta) return;

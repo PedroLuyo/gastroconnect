@@ -1,150 +1,77 @@
-body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-}
-
-#crearRestaurante {
-    padding: 20px;
-}
-
-.card {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-    max-width: 900px;
-    /* Incrementa el ancho máximo para adaptarse a la tabla */
-}
-
-.card h2 {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-
-.table {
-    margin-bottom: 0;
-}
-
-.table th,
-.table td {
-    text-align: center;
-    /* Centrar el texto en las celdas */
-    vertical-align: middle;
-    /* Centrar verticalmente el contenido */
-}
-
-.table img {
-    max-width: 80px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-selector {
-    background-color: var(--bordes);
-    color: #fff;
-    border-radius: 50px;
-    padding: 10px 25px;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    transition: 0.3s;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-selector:hover {
-    background-color: #0056b3;
-    color: #fff;
-}
-
-.d-flex .btn {
-    margin: 0 10px;
-}
-
-.mt-5 {
-    margin-top: 3rem;
-}
-
-.mt-3 {
-    margin-top: 1rem;
-}
-
-.input-group-append button {
+/* restaurant.component.css */
+:host {
+    display: block;
+  }
+  
+  .custom-file-input::-webkit-file-upload-button {
+    visibility: hidden;
+  }
+  
+  .custom-file-input::before {
+    content: 'Seleccionar archivo';
+    display: inline-block;
+    background: #4B5563;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
     cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .card {
-        max-width: 100%;
-        margin: 10px;
-    }
-
-    .table-responsive {
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .btn {
-        margin: 5px 0;
-    }
-}
-
-#titulo {
-margin-top: 90px;
-}
-body {
-    background-image: url('/src/assets/img/selector.png'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed; 
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-}
-
-.container {
-    margin-top: 80px; 
-}
-
-.text-center {
-    text-align: center;
-}
-
-.btn-selector {
-    background-color: var(--bordes);
-    color: #fff;
-    border-radius: 50px;
-    padding: 10px 25px;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    transition: 0.3s;
-    position: relative;
+  }
+  
+  .custom-file-input:hover::before {
+    background: #374151;
+  }
+  
+  .image-preview {
+    transition: all 0.3s ease;
+  }
+  
+  .image-preview:hover {
+    transform: scale(1.05);
+  }
+  
+  .form-control.ng-invalid.ng-touched {
+    border-color: #EF4444;
+  }
+  
+  .form-control.ng-valid.ng-touched {
+    border-color: #10B981;
+  }
+  
+  .loading-spinner {
+    border-top-color: #3B82F6;
+  }
+  
+  /* Nuevos estilos para la tabla */
+  .table-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  table {
+    table-layout: fixed;
+  }
+  
+  td {
+    max-width: 200px;
     overflow: hidden;
-}
-
-.btn-selector:hover {
-    background-color: #0056b3; 
-    color: #fff;
-}
-
-.d-flex .btn {
-    margin: 0 10px;
-}
-
-.mt-5 {
-    margin-top: 3rem;
-}
-
-.mt-3 {
-    margin-top: 1rem;
-}
-
-#test{
-    padding-top: 100px;
-}
+    text-overflow: ellipsis;
+  }
+  
+  /* Ajustar el tamaño de la columna del logo */
+  td:first-child {
+    width: 60px;
+    min-width: 60px;
+  }
+  
+  /* Estilos para las imágenes en la tabla */
+  td img.rounded-full {
+    max-width: 32px;
+    max-height: 32px;
+    object-fit: cover;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }

@@ -10,7 +10,6 @@
 
 body {
     background-color: var(--blanco);
-    font-family: "Poppins", sans-serif;
 }
 
 .welcome-text {
@@ -26,11 +25,9 @@ a:hover {
 }
 
 h1 {
-    font-family: "Satisfy";
 }
 
 h2 {
-    font-family: "Satisfy";
     font-weight: bold;
 
 }

@@ -1,208 +1,273 @@
-<div class="container">
-  <div class="row">
-    <!-- Columna del formulario -->
-    <div class="col-md-5">
-      <h2>{{ restauranteForm.value.id ? 'Editar' : 'Crear' }} Restaurante</h2>
-
-      <form [formGroup]="restauranteForm" (ngSubmit)="manejarRestauranteForm()">
-        <div class="form-group">
-          <label for="nombre">Nombre:</label>
-          <input type="text" class="form-control" id="nombre" formControlName="nombre">
+<div class="container-fluid" style="padding-top: 55px;">
+  <div class="row p-4">
+    <!-- Formulario (Lado izquierdo) -->
+    <div [class]="showForm ? 'col-lg-5' : 'col-lg-0'" *ngIf="showForm">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{isEditMode ? 'Editar' : 'Crear'}} Restaurante</h5>
         </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="direccion">Dirección:</label>
-            <input type="text" class="form-control" id="direccion" formControlName="direccion">
-          </div>
+        <div class="card-body">
+          <form [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="needs-validation">
+            <!-- Tabs para organizar el formulario -->
+            <ul class="nav nav-tabs mb-3" id="formTabs" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#basicInfo">Información Básica</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#contact">Contacto</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#location">Ubicación</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#features">Características</a>
+              </li>
+            </ul>
 
-          <div class="form-group col-md-6">
-            <label for="telefono">Teléfono:</label>
-            <input type="text" class="form-control" id="telefono" formControlName="telefono" pattern="^\d{9}$"
-              maxlength="9">
-            <div
-              *ngIf="restauranteForm.get('telefono')?.errors?.['pattern'] && restauranteForm.get('telefono')?.touched"
-              class="text-danger">
-              Debe haber exactamente 9 dígitos.
-            </div>
-          </div>
+            <div class="tab-content">
+              <!-- Tab: Información Básica -->
+              <div class="tab-pane fade show active" id="basicInfo">
+                <div class="mb-3">
+                  <label class="form-label">Nombre</label>
+                  <input type="text" formControlName="name" class="form-control">
+                </div>
 
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="tipoCocina">Tipo de Cocina:</label>
-            <input type="text" class="form-control" id="tipoCocina" formControlName="tipoCocina">
-          </div>
-          <div class="form-group col-md-6">
-            <label for="capacidadPersonas">Capacidad de Personas:</label>
-            <input type="text" class="form-control" id="capacidadPersonas" formControlName="capacidadPersonas">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="horaApertura">Hora de Apertura:</label>
-            <input type="time" class="form-control" id="horaApertura" formControlName="horaApertura">
-          </div>
-          <div class="form-group col-md-6">
-            <label for="horaCierre">Hora de Cierre:</label>
-            <input type="time" class="form-control" id="horaCierre" formControlName="horaCierre">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="ruc">RUC:</label>
-          <input type="text" class="form-control" id="ruc" formControlName="ruc" pattern="^20\d{9}$" maxlength="11"
-            required [readonly]="restauranteForm.get('id')?.value">
-          <div *ngIf="restauranteForm.get('ruc')?.hasError('pattern') && restauranteForm.get('ruc')?.touched"
-            class="text-danger">
-            El RUC debe comenzar con '20' seguido de 9 dígitos.
-          </div>
-        </div>
+                <div formGroupName="businessInfo">
+                  <div class="mb-3">
+                    <label class="form-label">RUC</label>
+                    <input type="text" formControlName="ruc" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Razón Social</label>
+                    <input type="text" formControlName="businessName" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Tipo de Negocio</label>
+                    <input type="text" formControlName="businessType" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Categorías</label>
+                    <input type="text" formControlName="category" class="form-control">
+                  </div>
+                </div>
 
+                <!-- Imágenes -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label">Logo</label>
+                      <input type="file" (change)="onLogoSelected($event)" 
+                             accept="image/*" class="form-control">
+                      <img *ngIf="logoPreview" [src]="logoPreview" 
+                           class="mt-2 img-thumbnail" style="height: 100px; width: 100px; object-fit: cover;">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label">Imagen de fondo</label>
+                      <input type="file" (change)="onBackgroundSelected($event)" 
+                             accept="image/*" class="form-control">
+                      <img *ngIf="backgroundPreview" [src]="backgroundPreview" 
+                           class="mt-2 img-thumbnail" style="height: 100px; width: 100%; object-fit: cover;">
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        <div class="form-group">
-          <label>Imagen del Restaurante:</label>
-          <div class="form-row">
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" id="subirImagen" formControlName="opcionImagen"
-                  value="subir">
-                <label class="form-check-label" for="subirImagen">Subir Imagen</label>
+              <!-- Tab: Contacto -->
+              <div class="tab-pane fade" id="contact">
+                <div formGroupName="contact">
+                  <div class="mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" formControlName="phone" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" formControlName="email" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Sitio Web</label>
+                    <input type="text" formControlName="website" class="form-control">
+                  </div>
+
+                  <div formGroupName="socialMedia">
+                    <h6 class="mb-3">Redes Sociales</h6>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Facebook</label>
+                        <input type="text" formControlName="facebook" class="form-control">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Instagram</label>
+                        <input type="text" formControlName="instagram" class="form-control">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Twitter/X</label>
+                        <input type="text" formControlName="x" class="form-control">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">YouTube</label>
+                        <input type="text" formControlName="youtube" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab: Ubicación -->
+              <div class="tab-pane fade" id="location">
+                <div formGroupName="location">
+                  <div class="row">
+                    <div class="col-md-12 mb-3">
+                      <label class="form-label">Dirección</label>
+                      <input type="text" formControlName="address" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Distrito</label>
+                      <input type="text" formControlName="district" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Ciudad</label>
+                      <input type="text" formControlName="city" class="form-control">
+                    </div>
+                    <div class="col-md-12 mb-3">
+                      <label class="form-label">País</label>
+                      <input type="text" formControlName="country" class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab: Características -->
+              <div class="tab-pane fade" id="features">
+                <div formGroupName="features">
+                  <div class="mb-3">
+                    <label class="form-label">Aforo</label>
+                    <input type="number" formControlName="capacity" class="form-control">
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="hasParking" class="form-check-input">
+                        <label class="form-check-label">Estacionamiento</label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="hasWifi" class="form-check-input">
+                        <label class="form-check-label">WiFi</label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="acceptsReservations" class="form-check-input">
+                        <label class="form-check-label">Reservaciones</label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="hasDelivery" class="form-check-input">
+                        <label class="form-check-label">Delivery</label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="hasTakeout" class="form-check-input">
+                        <label class="form-check-label">Para llevar</label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="hasMenu" class="form-check-input">
+                        <label class="form-check-label">Menú</label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input type="checkbox" formControlName="hasCarta" class="form-check-input">
+                        <label class="form-check-label">Carta</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" id="urlImagen" formControlName="opcionImagen" value="url">
-                <label class="form-check-label" for="urlImagen">URL de Imagen</label>
-              </div>
-            </div>
-          </div>
 
-          <div class="mt-2">
-            <div *ngIf="restauranteForm.get('opcionImagen')?.value === 'subir'">
-              <input type="file" class="form-control-file" (change)="onFileSelected($event)">
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" (click)="cancelEdit()" class="btn btn-secondary">
+                Cancelar
+              </button>
+              <button type="submit" [disabled]="!restaurantForm.valid" class="btn btn-primary">
+                {{isEditMode ? 'Actualizar' : 'Crear'}}
+              </button>
             </div>
-
-            <div *ngIf="restauranteForm.get('opcionImagen')?.value === 'url'">
-              <input type="text" class="form-control" formControlName="urlImagen"
-                placeholder="Ingrese la URL de la imagen">
-            </div>
-          </div>
-
-          <img *ngIf="imagenPreview" [src]="imagenPreview" alt="Vista Previa de la Imagen" class="img-fluid mt-3">
+          </form>
         </div>
-
-        <div>
-
-          <button type="submit" class="btn btn-primary"
-            [disabled]="totalRestaurantes >= 3 && !restauranteForm.get('id')?.value">
-            {{ restauranteForm.get('id')?.value ? 'Editar' : 'Crear' }} Restaurante
-          </button>
-
-          <button *ngIf="restauranteForm.get('id')?.value" type="button" class="btn btn-secondary ml-2"
-            (click)="cancelarEdicion()">Cancelar</button>
-
-        </div>
-      </form>
-      <div class="alert alert-info mt-3">
-        <p>Restaurantes creados: {{ totalRestaurantes }} / 3</p>
-        <p *ngIf="totalRestaurantes < 3">Puedes crear {{ 3 - totalRestaurantes }} restaurante(s) más.</p>
-        <p *ngIf="totalRestaurantes >= 3">Has alcanzado el límite de restaurantes. No puedes crear más.</p>
       </div>
     </div>
 
+    <!-- Lista (Lado derecho) -->
+    <div [class]="showForm ? 'col-lg-7' : 'col-lg-12'">
+      <div class="card shadow">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Restaurantes</h5>
+          <button (click)="showCreateForm()" 
+                  *ngIf="!showForm"
+                  class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Nuevo Restaurante
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
 
-
-
-
-    <!-- Columna de la tabla -->
-    <div class="col-md-7">
-      <h2>Listado de Restaurantes</h2>
-      
-      <div *ngIf="restaurantes.length === 0" class="alert alert-info">No hay restaurantes registrados.</div>
-      <!-- Botones para exportar -->
-
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Imagen</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Dirección</th>
-            <th scope="col">Teléfono</th>
-            <th scope="col">Tipo de Cocina</th>
-            <th scope="col">Capacidad de Personas</th>
-            <th scope="col">Horario</th>
-            <th scope="col">RUC</th>
-
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            *ngFor="let restaurante of restaurantes | paginate: { itemsPerPage: 4, currentPage: page, totalItems: totalRestaurantes }">
-            <td><img [src]="restaurante.imagenRestaurante" alt="Imagen del restaurante" class="img-fluid"></td>
-            <td>{{ restaurante.nombre }}</td>
-            <td>{{ restaurante.direccion }}</td>
-            <td>{{ restaurante.telefono }}</td>
-            <td>{{ restaurante.tipoCocina }}</td>
-            <td>{{ restaurante.capacidadPersonas }}</td>
-            <td>{{ restaurante.horarioFuncionamiento }}</td>
-            <td>{{ restaurante.ruc }}</td>
-
-            <td>
-              <button type="button" class="btn btn-primary btn-sm" (click)="verRestaurante(restaurante)">Editar</button>
-              <!-- <button type="button" class="btn btn-danger btn-sm ml-2" (click)="desactivarRestaurante(restaurante)" *ngIf="restaurante.estado">Desactivar</button>
-              <button type="button" class="btn btn-warning btn-sm ml-2" (click)="restaurarRestaurante(restaurante)" *ngIf="!restaurante.estado">Restaurar</button> -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <pagination-controls (pageChange)="page = $event"></pagination-controls>
-      <button class="btn btn-primary mr-2" (click)="exportarCSV()">Exportar a CSV</button>
-      <button class="btn btn-danger" (click)="exportarPDF()">Exportar a PDF</button>
+          <div class="table-responsive" *ngIf="!loading">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Logo</th>
+                  <th>Nombre</th>
+                  <th>RUC</th>
+                  <th>Teléfono</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let restaurant of restaurants">
+                  <td>
+                    <img [src]="restaurant.media?.logo" 
+                         alt="Logo" 
+                         class="rounded-circle"
+                         style="width: 40px; height: 40px; object-fit: cover;">
+                  </td>
+                  <td>{{restaurant.name}}</td>
+                  <td>{{restaurant.businessInfo?.ruc}}</td>
+                  <td>{{restaurant.contact?.phone}}</td>
+                  <td>
+                    <span [class]="restaurant.status ? 'badge bg-success' : 'badge bg-danger'">
+                      {{restaurant.status ? 'Activo' : 'Inactivo'}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button (click)="editRestaurant(restaurant)" 
+                              class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button *ngIf="restaurant.status" 
+                              (click)="deleteRestaurant(restaurant.identifier)"
+                              class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                      <button *ngIf="!restaurant.status" 
+                              (click)="restoreRestaurant(restaurant.identifier)"
+                              class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-arrow-clockwise"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-    
   </div>
-</div>
-
-<div class="container mt-4">
-  <h2>Listado de Restaurantes</h2>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">Logo</th>
-        <th scope="col">Nombre</th>
-        <th scope="col">RUC</th>
-        <th scope="col">Razón Social</th>
-        <th scope="col">Tipo de Negocio</th>
-        <th scope="col">Categoría</th>
-        <th scope="col">Dirección</th>
-        <th scope="col">Ciudad</th>
-        <th scope="col">País</th>
-        <th scope="col">Teléfono</th>
-        <th scope="col">Email</th>
-        <th scope="col">Sitio Web</th>
-        <th scope="col">Métodos de Pago</th>
-        <th scope="col">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let restaurante of restaurantes">
-        <td><img [src]="restaurante.media.logo" alt="Logo del restaurante" class="img-fluid" style="max-width: 50px;"></td>
-        <td>{{ restaurante.nombre }}</td>
-        <td>{{ restaurante.informacionNegocio.ruc }}</td>
-        <td>{{ restaurante.informacionNegocio.razonSocial }}</td>
-        <td>{{ restaurante.informacionNegocio.tipoNegocio }}</td>
-        <td>{{ restaurante.informacionNegocio.categoria.join(', ') }}</td>
-        <td>{{ restaurante.ubicacion.direccion }}</td>
-        <td>{{ restaurante.ubicacion.ciudad }}</td>
-        <td>{{ restaurante.ubicacion.pais }}</td>
-        <td>{{ restaurante.contacto.telefono }}</td>
-        <td>{{ restaurante.contacto.email }}</td>
-        <td><a [href]="restaurante.contacto.sitioWeb" target="_blank">{{ restaurante.contacto.sitioWeb }}</a></td>
-        <td>{{ restaurante.metodosPago.join(', ') }}</td>
-        <td>
-          <button type="button" class="btn btn-primary btn-sm" (click)="verRestaurante(restaurante)">Editar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
 </div>

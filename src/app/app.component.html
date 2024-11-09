@@ -27,9 +27,7 @@
           <li class="nav-item" *ngIf="userName && userRole === 'admin'">
             <a routerLink="monitorear" class="nav-link"><i class="fas fa-users"></i> Monitorear</a>
           </li>
-          <li class="nav-item" *ngIf="userName && (userRole === 'comensal' || userRole === 'admin')">
-            <a routerLink="reservarconusuario" class="nav-link"><i class="fas fa-shopping-cart"></i> Reservar</a>
-          </li>
+         
           <li class="nav-item" *ngIf="userName && (userRole === 'gestor' || userRole === 'admin')">
             <a routerLink="platos" class="nav-link"><i class="fas fa-utensil-spoon"></i> Platos</a>
           </li>

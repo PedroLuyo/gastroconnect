@@ -1,6 +1,5 @@
 import { AuthService } from '../services/auth/authService';
 import { ChangeDetectorRef, Component, enableProdMode, OnInit } from '@angular/core';
-import { RestauranteMenuService } from '../services/restaurantmenu/restaurantmenu.service';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { RestauranteService } from '../services/restaurant/restaurante.service';
@@ -50,7 +49,6 @@ export class MainComponent implements OnInit {
 
   constructor(
     private authService: AuthService, 
-    private restauranteMenuService: RestauranteMenuService,
     private restauranteService: RestauranteService,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -61,22 +59,7 @@ export class MainComponent implements OnInit {
     this.initCarousel();
     this.listarRestaurantes();
 
-    this.restauranteMenuService.getCartas().pipe(take(1)).subscribe((platos: any[]) => {
-      this.platoscarta = platos.filter((plato: { estado: string }) => plato.estado === 'A');
-      this.updatePaginatedPlatosCarta();
-      this.cdr.detectChanges();
-    });
-
-    this.restauranteMenuService.getMenus().pipe(take(1)).subscribe((platos: any[]) => {
-      this.platosmenu = platos.filter((plato: { estado: string }) => plato.estado === 'A');
-      this.updatePaginatedPlatosMenu();
-      this.cdr.detectChanges();
-    });
-
-    this.restauranteMenuService.getPlatos().pipe(take(1)).subscribe((platos: any[]) => {
-      this.allPlatos = platos.filter((plato: { estado: string }) => plato.estado === 'A');
-      this.cdr.detectChanges();
-    });
+    
   }
   verRestauranteDetalle(restaurante: any): void {
     // Navegar a la ruta de detalles del restaurante con el ID como parámetro
@@ -171,69 +154,5 @@ export class MainComponent implements OnInit {
     });
   }
 
-  async generarReportePDF(): Promise<void> {
-    const doc = new jsPDF({
-      orientation: 'landscape',
-      unit: "mm",
-      format: "a4"
-    });
-
-    const img = new Image();
-    img.src = 'assets/img/Logo Transparente Gastro Connect.png';
-    img.onload = async () => {
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const logoWidth = pageWidth * 0.2;
-      const logoHeight = img.height * (logoWidth / img.width);
-      const logoX = (pageWidth - logoWidth) / 2;
-      doc.addImage(img, 'PNG', logoX, 10, logoWidth, logoHeight);
-
-      const fecha = new Date().toLocaleDateString();
-
-      doc.setFont('courier', 'bold');
-      doc.setFontSize(20);
-      const titulo = 'Reporte de Platos';
-      const tituloY = logoHeight + 20;
-      doc.text(titulo, 14, tituloY);
-
-      doc.setFontSize(12);
-      const fechaX = pageWidth - 14;
-      doc.text(`Fecha: ${fecha}`, fechaX, tituloY, { align: 'right' });
-
-      const platos = await this.restauranteMenuService.getPlatos().toPromise();
-      const head = [['Nombre', 'Descripción', 'Precio']];
-      const data = platos.filter((plato: { estado: string }) => plato.estado === 'A')
-        .map((plato: { nombre: string; descripcion: string; precio: number }) => [
-          plato.nombre,
-          plato.descripcion,
-          plato.precio
-        ]);
-
-      (doc as any).autoTable({
-        head: head,
-        body: data,
-        startY: tituloY + 10,
-        styles: {
-          cellWidth: 'auto',
-          fontSize: 10,
-          lineColor: [0, 0, 0],
-          lineWidth: 0.1
-        },
-        headStyles: {
-          fillColor: [0, 0, 0],
-          textColor: 255,
-          fontStyle: 'bold'
-        },
-        bodyStyles: {
-          fillColor: [255, 255, 255],
-          textColor: 0
-        },
-        alternateRowStyles: {
-          fillColor: [235, 235, 235]
-        }
-      });
-
-      doc.save(`reporte-platos-${fecha}.pdf`);
-    };
-  }
+  
 }
