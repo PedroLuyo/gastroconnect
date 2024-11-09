@@ -1,3 +1,4 @@
+# Frontend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,15 +15,12 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: angelolm/unificado:latest
+        image: pedroluyo/web-gastroconnect:latest
         ports:
         - containerPort: 4200
-        env:
-        - name: letterplate
-          value: "http://ms-letterplate-service"  
-        - name: restaurantmenu
-          value: "http://ms-restaurantmenu-service"  
+
 ---
+# Frontend Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -37,137 +35,149 @@ spec:
     targetPort: 4200 
 
 ---
+# Backend - Dishes Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-restaurantmenu-deployment
+  name: ms-dishes-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-restaurantmenu
+      app: ms-dishes
   template:
     metadata:
       labels:
-        app: ms-restaurantmenu
+        app: ms-dishes
     spec:
       containers:
-      - name: ms-restaurantmenu
-        image: pedroluyo/ms-restaurantmenu:latest
+      - name: ms-dishes
+        image: pedroluyo/ms-dishes:latest
         ports:
-        - containerPort: 8086
+        - containerPort: 8081
 
 ---
+# Backend - Dishes Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-restaurantmenu-service
+  name: ms-dishes-service
 spec:
   type: LoadBalancer
   selector:
-    app: ms-restaurantmenu
+    app: ms-dishes
   ports:
   - protocol: TCP
-    port: 8086
-    targetPort: 8086
+    port: 8081
+    targetPort: 8081
 
 ---
+# Backend - Restaurants Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-letterplate-deployment
+  name: ms-restaurants-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-letterplate
+      app: ms-restaurants
   template:
     metadata:
       labels:
-        app: ms-letterplate
+        app: ms-restaurants
     spec:
       containers:
-      - name: ms-letterplate
-        image: alexito03/ms-letterplate:latest
+      - name: ms-restaurants
+        image: pedroluyo/ms-restaurants:latest
         ports:
-        - containerPort: 9095
+        - containerPort: 8082
+
 ---
+# Backend - Restaurants Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-letterplate-service
+  name: ms-restaurants-service
 spec:
   type: LoadBalancer
   selector:
-    app: ms-letterplate
+    app: ms-restaurants
   ports:
   - protocol: TCP
-    port: 9095  
-    targetPort: 9095  
+    port: 8082
+    targetPort: 8082
+
 ---
+# Backend - Bookings Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-restaurant
+  name: ms-bookings-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-restaurant
+      app: ms-bookings
   template:
     metadata:
       labels:
-        app: ms-restaurant
+        app: ms-bookings
     spec:
       containers:
-      - name: ms-restaurant
-        image: erickportuguez/ms-restaurant:latest
+      - name: ms-bookings
+        image: pedroluyo/ms-bookings:latest
         ports:
-        - containerPort: 8090
+        - containerPort: 8083
+
 ---
+# Backend - Bookings Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-restaurant-service
+  name: ms-bookings-service
 spec:
   type: LoadBalancer
   selector:
-    app: ms-restaurant
+    app: ms-bookings
   ports:
   - protocol: TCP
-    port: 8090
-    targetPort: 8090
+    port: 8083
+    targetPort: 8083
+
 ---
+# Backend - Notifications Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-menuplate
+  name: ms-notifications-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-menuplate
+      app: ms-notifications
   template:
     metadata:
       labels:
-        app: ms-menuplate
+        app: ms-notifications
     spec:
       containers:
-      - name: ms-menuplate
-        image: naomicama/ms-menuplate:latest
+      - name: ms-notifications
+        image: pedroluyo/ms-notifications:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 8084
+
 ---
+# Backend - Notifications Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-menuplate-service
+  name: ms-notifications-service
 spec:
   type: LoadBalancer
   selector:
-    app: ms-menuplate
+    app: ms-notifications
   ports:
   - protocol: TCP
-    port: 8080
-    targetPort: 8080
-    
+    port: 8084
+    targetPort: 8084
